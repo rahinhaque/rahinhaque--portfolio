@@ -160,19 +160,24 @@ export default function Contact() {
     }
     setStatus("sending");
     try {
-      const { default: emailjs } = await import("@emailjs/browser");
+      const emailjs = (await import("@emailjs/browser")).default;
+      
+      // Initialize EmailJS with public key from environment
+      emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
+      
       await emailjs.send(
-        "YOUR_SERVICE_ID",
-        "YOUR_TEMPLATE_ID",
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
         {
           from_name: formData.name,
           from_email: formData.email,
-          subject: formData.subject || "Portfolio Contact",
+          subject: formData.subject || "Portfolio Contact Form Submission",
           message: formData.message,
-          to_email: "haquerahin743@gmail.com",
-        },
-        "YOUR_PUBLIC_KEY",
+          reply_to: formData.email,
+          to_email: process.env.NEXT_PUBLIC_EMAILJS_TO_EMAIL
+        }
       );
+      
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
       
@@ -184,9 +189,10 @@ export default function Contact() {
       });
       
       setTimeout(() => setStatus("idle"), 5000);
-    } catch {
+    } catch (error) {
+      console.error("Email sending failed:", error);
       setStatus("error");
-      setTimeout(() => setStatus("idle"), 4000);
+      setTimeout(() => setStatus("idle"), 5000);
     }
   };
 
