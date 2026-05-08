@@ -63,82 +63,216 @@ export default function Contact() {
   });
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
-  /* ── GSAP Animations for Contact section ── */
+  /* ── Enhanced GSAP Animations for Contact section ── */
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Reveal section header
-      gsap.fromTo(sectionRef.current?.querySelectorAll(".reveal"),
-        { opacity: 0, y: 40 },
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          once: true
+        }
+      });
+
+      // Dramatic section header reveal
+      tl.fromTo(sectionRef.current?.querySelectorAll(".reveal"),
+        { 
+          opacity: 0, 
+          y: 80, 
+          rotationX: 45,
+          transformPerspective: 1000
+        },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-            once: true
-          }
+          rotationX: 0,
+          duration: 1.2,
+          stagger: 0.15,
+          ease: "power4.out"
         }
-      );
-
-      // Contact info cards stagger animation
-      const cards = leftRef.current?.querySelectorAll(".contact-info-card");
-      if (cards?.length) {
-        gsap.fromTo(cards,
-          { opacity: 0, x: -40, scale: 0.94 },
-          {
-            opacity: 1,
-            x: 0,
-            scale: 1,
-            duration: 0.7,
-            stagger: 0.12,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: leftRef.current,
-              start: "top 85%",
-              once: true
-            }
-          }
-        );
-      }
-
-      // Form card animation
-      gsap.fromTo(sectionRef.current?.querySelector(".contact-form-card"),
-        { opacity: 0, y: 50, scale: 0.96 },
+      )
+      // Contact info cards with 3D effect
+      .fromTo(leftRef.current?.querySelectorAll(".contact-info-card"),
+        { 
+          opacity: 0, 
+          x: -60, 
+          scale: 0.8,
+          rotationY: -20,
+          transformPerspective: 1000
+        },
+        {
+          opacity: 1,
+          x: 0,
+          scale: 1,
+          rotationY: 0,
+          duration: 1,
+          stagger: 0.15,
+          ease: "back.out(1.3)"
+        },
+        "-=0.6"
+      )
+      // Form card with flip animation
+      .fromTo(sectionRef.current?.querySelector(".contact-form-card"),
+        { 
+          opacity: 0, 
+          y: 100, 
+          scale: 0.9,
+          rotationX: -30,
+          transformPerspective: 1200
+        },
         {
           opacity: 1,
           y: 0,
           scale: 1,
+          rotationX: 0,
+          duration: 1.3,
+          ease: "power3.out"
+        },
+        "-=0.4"
+      )
+      // Form fields with staggered entrance
+      .fromTo(".form-field",
+        { 
+          opacity: 0, 
+          y: 40, 
+          x: -20
+        },
+        {
+          opacity: 1,
+          y: 0,
+          x: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power2.out"
+        },
+        "-=0.8"
+      )
+      // Submit button with elastic effect
+      .fromTo(".submit-btn",
+        { 
+          opacity: 0, 
+          scale: 0.5,
+          rotation: -180
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
           duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current?.querySelector(".contact-form-card"),
-            start: "top 85%",
-            once: true
-          }
-        }
+          ease: "elastic.out(1, 0.5)"
+        },
+        "-=0.3"
       );
 
-      // Contact card hover effects
+      // Enhanced contact card hover effects
       const contactCards = sectionRef.current?.querySelectorAll(".contact-info-card");
-      contactCards?.forEach((card) => {
+      contactCards?.forEach((card, index) => {
         card.addEventListener("mouseenter", () => {
           gsap.to(card, {
-            x: 8,
-            duration: 0.3,
-            ease: "power2.out"
+            scale: 1.08,
+            x: 10,
+            y: -5,
+            rotationY: 5,
+            duration: 0.4,
+            ease: "power2.out",
+            transformPerspective: 1000
+          });
+          
+          // Add glow effect
+          gsap.to(card, {
+            boxShadow: "0 10px 30px rgba(0, 212, 255, 0.3)",
+            duration: 0.3
           });
         });
+        
         card.addEventListener("mouseleave", () => {
           gsap.to(card, {
+            scale: 1,
             x: 0,
-            duration: 0.3,
+            y: 0,
+            rotationY: 0,
+            duration: 0.4,
             ease: "power2.out"
+          });
+          
+          // Remove glow effect
+          gsap.to(card, {
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            duration: 0.3
           });
         });
       });
+
+      // Form field focus animations
+      const formFields = document.querySelectorAll('.form-field input, .form-field textarea');
+      formFields.forEach(field => {
+        field.addEventListener('focus', () => {
+          gsap.to(field.parentElement, {
+            scale: 1.02,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+          
+          gsap.to(field, {
+            boxShadow: '0 0 0 3px rgba(0, 212, 255, 0.3)',
+            duration: 0.3
+          });
+        });
+        
+        field.addEventListener('blur', () => {
+          gsap.to(field.parentElement, {
+            scale: 1,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+          
+          gsap.to(field, {
+            boxShadow: '0 0 0 0px rgba(0, 212, 255, 0)',
+            duration: 0.3
+          });
+        });
+      });
+
+      // Submit button hover effect
+      const submitBtn = document.querySelector('.submit-btn');
+      if (submitBtn) {
+        submitBtn.addEventListener('mouseenter', () => {
+          gsap.to(submitBtn, {
+            scale: 1.05,
+            rotation: 2,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+        
+        submitBtn.addEventListener('mouseleave', () => {
+          gsap.to(submitBtn, {
+            scale: 1,
+            rotation: 0,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+      }
+
+      // Form submission animation
+      const form = document.querySelector('.contact-form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          // Add loading animation
+          gsap.to(submitBtn, {
+            scale: 0.95,
+            duration: 0.2
+          });
+          
+          gsap.to(submitBtn, {
+            rotation: 360,
+            duration: 1,
+            ease: 'power2.inOut',
+            repeat: -1
+          });
+        });
+      }
     });
 
     return () => ctx.revert();
