@@ -116,10 +116,10 @@ export default function Skills() {
             barsAnimated.current = true;
             
             anime({
-              targets: ".progress-fill",
-              width: ["0%", function() {
-                return this.getAttribute("data-width") + "%";
-              }],
+              targets: ".skill-bar-fill",
+              width: function(el) {
+                return ["0%", el.getAttribute("data-level") + "%"];
+              },
               duration: 1500,
               delay: anime.stagger(100, {start: 1000}),
               easing: 'easeOutExpo'
@@ -128,24 +128,14 @@ export default function Skills() {
             // Animate skill level counters
             anime({
               targets: ".skill-level",
-              innerHTML: [0, function() {
-                return this.getAttribute("data-level");
-              }],
+              innerHTML: function(el) {
+                return [0, el.getAttribute("data-level")];
+              },
               round: 1,
               opacity: [0, 1],
               duration: 1500,
               delay: anime.stagger(100, {start: 1000}),
               easing: 'easeOutExpo'
-            });
-
-            // Add glow effect to progress bars
-            anime({
-              targets: ".progress-fill",
-              boxShadow: ["0 0 0px rgba(0, 212, 255, 0)", "0 0 20px rgba(0, 212, 255, 0.5)"],
-              duration: 500,
-              delay: anime.stagger(100, {start: 2000}),
-              direction: 'alternate',
-              easing: 'easeInOutQuad'
             });
           }
 
@@ -417,7 +407,7 @@ export default function Skills() {
                           marginLeft: "8px",
                         }}
                       >
-                        {skill.level}%
+                        <span className="skill-level" data-level={skill.level} style={{ display: 'inline-block' }}>0</span>%
                       </span>
                     </div>
                     <div className="skill-bar-track">

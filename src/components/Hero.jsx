@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import * as THREE from 'three';
-import anime from 'animejs';
+import gsap from 'gsap';
 
 export default function Hero() {
   const canvasRef = useRef(null);
@@ -244,136 +244,128 @@ export default function Hero() {
     };
   }, []);
 
-  /* ── Enhanced Entrance animations with anime.js ─────────────────────────────── */
+  /* ── GSAP Entrance animations ─────────────────────────────── */
   useEffect(() => {
-    // Parallax background elements
-    anime({
-      targets: '[data-parallax="hero-bg"]',
-      opacity: [0, 1],
-      scale: [1.2, 1],
-      duration: 2000,
-      easing: 'easeOutExpo'
-    });
+    const tl = gsap.timeline();
 
     // Tag entrance with bounce
-    anime({
-      targets: tagRef.current,
-      opacity: [0, 1],
-      translateY: [50, 0],
-      scale: [0.8, 1],
-      duration: 800,
-      delay: 500,
-      easing: 'easeOutElastic(1, .8)'
-    });
+    if (tagRef.current) {
+      gsap.set(tagRef.current, { y: 50, scale: 0.8 });
+      tl.to(tagRef.current, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: 'elastic.out(1, 0.8)'
+      });
+    }
 
     // Name with dramatic entrance
-    anime({
-      targets: nameRef.current,
-      opacity: [0, 1],
-      translateY: [80, 0],
-      scale: [0.9, 1],
-      duration: 1200,
-      delay: 700,
-      easing: 'easeOutExpo'
-    });
+    if (nameRef.current) {
+      gsap.set(nameRef.current, { y: 80, scale: 0.9 });
+      tl.to(nameRef.current, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.2,
+        ease: 'power2.out'
+      }, '-=0.3');
+    }
 
     // Headline words with staggered reveal
     if (headlineRef.current) {
       const words = headlineRef.current.querySelectorAll('.word');
-      anime({
-        targets: words,
-        opacity: [0, 1],
-        translateY: [60, 0],
-        duration: 800,
-        delay: anime.stagger(100, {start: 900}),
-        easing: 'easeOutExpo'
-      });
+      if (words.length > 0) {
+        gsap.set(words, { y: 60 });
+        tl.to(words, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power2.out'
+        }, '-=0.5');
+      }
     }
 
     // Subtitle with slide and fade
-    anime({
-      targets: subtitleRef.current,
-      opacity: [0, 1],
-      translateY: [40, 0],
-      translateX: [-30, 0],
-      duration: 900,
-      delay: 1200,
-      easing: 'easeOutExpo'
-    });
+    if (subtitleRef.current) {
+      gsap.set(subtitleRef.current, { y: 40, x: -30 });
+      tl.to(subtitleRef.current, {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        duration: 0.9,
+        ease: 'power2.out'
+      }, '-=0.4');
+    }
 
     // CTA buttons with elastic effect
     if (ctaRef.current) {
       const buttons = ctaRef.current.querySelectorAll('a, button');
-      anime({
-        targets: buttons,
-        opacity: [0, 1],
-        translateY: [30, 0],
-        scale: [0.8, 1],
-        duration: 700,
-        delay: anime.stagger(150, {start: 1400}),
-        easing: 'easeOutElastic(1, .5)'
-      });
+      if (buttons.length > 0) {
+        gsap.set(buttons, { y: 30, scale: 0.8 });
+        tl.to(buttons, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.15,
+          ease: 'elastic.out(1, 0.5)'
+        }, '-=0.3');
+      }
     }
 
-    // Stats with counter animation
+    // Stats with fade animation
     if (statsRef.current) {
       const statItems = statsRef.current.querySelectorAll('.stat-item');
-      anime({
-        targets: statItems,
-        opacity: [0, 1],
-        translateY: [40, 0],
-        scale: [0.9, 1],
-        duration: 800,
-        delay: anime.stagger(100, {start: 1700}),
-        easing: 'easeOutExpo'
-      });
+      if (statItems.length > 0) {
+        gsap.set(statItems, { y: 40, scale: 0.9 });
+        tl.to(statItems, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power2.out'
+        }, '-=0.3');
+      }
     }
 
-    // Photo with 3D flip
-    anime({
-      targets: photoRef.current,
-      opacity: [0, 1],
-      scale: [0.7, 1],
-      duration: 1500,
-      delay: 1600,
-      easing: 'easeOutExpo'
-    });
+    // Photo with scale entrance
+    if (photoRef.current) {
+      gsap.set(photoRef.current, { scale: 0.7 });
+      tl.to(photoRef.current, {
+        opacity: 1,
+        scale: 1,
+        duration: 1.5,
+        ease: 'power2.out'
+      }, '-=0.5');
 
-    // Add floating animation to photo
-    anime({
-      targets: photoRef.current,
-      translateY: [-10, 0],
-      duration: 2000,
-      direction: 'alternate',
-      loop: true,
-      easing: 'easeInOutSine'
-    });
+      // Continuous floating on photo (start after entrance)
+      gsap.to(photoRef.current, {
+        y: -10,
+        duration: 2,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut',
+        delay: 1.5
+      });
+    }
 
     // Scroll-based parallax for hero elements
     const handleScroll = () => {
       const scrollY = window.pageYOffset;
       const progress = Math.min(scrollY / 500, 1);
-      
-      anime({
-        targets: '[data-parallax="hero-bg"]',
-        translateY: progress * 100,
-        duration: 0,
-        easing: 'linear'
-      });
-      
-      anime({
-        targets: photoRef.current,
-        translateY: progress * 50,
-        rotateY: progress * 10,
-        duration: 0,
-        easing: 'linear'
-      });
+      gsap.set('[data-parallax="hero-bg"]', { y: progress * 100 });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      gsap.killTweensOf(tagRef.current);
+      gsap.killTweensOf(nameRef.current);
+      gsap.killTweensOf(photoRef.current);
     };
   }, []);
 

@@ -530,7 +530,6 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 3px;
   background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
   width: 0%;
-  transition: width 1.5s var(--ease-out-expo);
   position: relative;
 }
 
