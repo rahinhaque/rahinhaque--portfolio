@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import anime from 'animejs';
 import {
   FaReact,
   FaNodeJs,
@@ -21,8 +20,6 @@ import {
   SiMongodb,
 } from "react-icons/si";
 import { FiMonitor, FiSettings, FiDatabase } from "react-icons/fi";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const skillCategories = [
   {
@@ -84,243 +81,125 @@ export default function Skills() {
   const barsAnimated = useRef(false);
   const pillsAnimated = useRef(false);
 
-  /* ── Enhanced GSAP Animations for Skills section ── */
+  /* Enhanced anime.js Animations for Skills section */
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Reveal section header with dramatic effect
-      gsap.fromTo(sectionRef.current?.querySelectorAll(".reveal"),
-        { 
-          opacity: 0, 
-          y: 60, 
-          rotationX: 45,
-          transformPerspective: 1000
-        },
-        {
-          opacity: 1,
-          y: 0,
-          rotationX: 0,
-          duration: 1,
-          stagger: 0.15,
-          ease: "power4.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-            once: true
+    // Use Intersection Observer to trigger animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Reveal section header with dramatic effect
+          const revealElements = sectionRef.current?.querySelectorAll(".reveal");
+          if (revealElements) {
+            anime({
+              targets: revealElements,
+              opacity: [0, 1],
+              translateY: [60, 0],
+              duration: 1000,
+              delay: anime.stagger(150),
+              easing: 'easeOutExpo'
+            });
           }
-        }
-      );
 
-      // Animate skill categories with 3D effect
-      gsap.fromTo(".skill-category",
-        { 
-          opacity: 0, 
-          y: 80, 
-          scale: 0.9,
-          rotationY: -15,
-          transformPerspective: 1000
-        },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          rotationY: 0,
-          duration: 1.2,
-          stagger: 0.2,
-          ease: "back.out(1.3)",
-          scrollTrigger: {
-            trigger: ".skill-category",
-            start: "top 80%",
-            once: true
-          }
-        }
-      );
+          // Animate skill categories with 3D effect
+          anime({
+            targets: ".skill-category",
+            opacity: [0, 1],
+            translateY: [80, 0],
+            scale: [0.9, 1],
+            duration: 1200,
+            delay: anime.stagger(200, {start: 600}),
+            easing: 'easeOutElastic(1, .8)'
+          });
 
-      // Animate progress bars with counter effect
-      ScrollTrigger.create({
-        trigger: ".skill-bars",
-        start: "top 70%",
-        onEnter: () => {
+          // Animate progress bars with counter effect
           if (!barsAnimated.current) {
             barsAnimated.current = true;
             
-            // Animate progress bars
-            gsap.fromTo(".progress-fill",
-              { width: "0%" },
-              {
-                width: function() {
-                  return this.getAttribute("data-width") + "%";
-                },
-                duration: 1.5,
-                stagger: 0.1,
-                ease: "power3.out"
-              }
-            );
+            anime({
+              targets: ".progress-fill",
+              width: ["0%", function() {
+                return this.getAttribute("data-width") + "%";
+              }],
+              duration: 1500,
+              delay: anime.stagger(100, {start: 1000}),
+              easing: 'easeOutExpo'
+            });
 
             // Animate skill level counters
-            gsap.fromTo(".skill-level",
-              { 
-                textContent: "0%",
-                opacity: 0
-              },
-              {
-                textContent: function() {
-                  return this.getAttribute("data-level") + "%";
-                },
-                opacity: 1,
-                duration: 1.5,
-                stagger: 0.1,
-                ease: "power2.out",
-                snap: { textContent: 1 }
-              }
-            );
+            anime({
+              targets: ".skill-level",
+              innerHTML: [0, function() {
+                return this.getAttribute("data-level");
+              }],
+              round: 1,
+              opacity: [0, 1],
+              duration: 1500,
+              delay: anime.stagger(100, {start: 1000}),
+              easing: 'easeOutExpo'
+            });
 
             // Add glow effect to progress bars
-            gsap.to(".progress-fill", {
-              boxShadow: "0 0 20px rgba(0, 212, 255, 0.5)",
-              duration: 0.5,
-              stagger: 0.1,
-              yoyo: true,
-              repeat: 1
+            anime({
+              targets: ".progress-fill",
+              boxShadow: ["0 0 0px rgba(0, 212, 255, 0)", "0 0 20px rgba(0, 212, 255, 0.5)"],
+              duration: 500,
+              delay: anime.stagger(100, {start: 2000}),
+              direction: 'alternate',
+              easing: 'easeInOutQuad'
             });
           }
-        }
-      });
 
-      // Animate other skills pills with elastic effect
-      ScrollTrigger.create({
-        trigger: pillsRef.current,
-        start: "top 75%",
-        onEnter: () => {
+          // Animate other skills pills with elastic effect
           if (!pillsAnimated.current) {
             pillsAnimated.current = true;
             
-            gsap.fromTo(".skill-pill",
-              { 
-                opacity: 0, 
-                scale: 0.5,
-                rotation: -180
-              },
-              {
-                opacity: 1,
-                scale: 1,
-                rotation: 0,
-                duration: 0.8,
-                stagger: 0.05,
-                ease: "elastic.out(1, 0.5)"
-              }
-            );
+            anime({
+              targets: ".skill-pill",
+              opacity: [0, 1],
+              scale: [0.5, 1],
+              rotate: [-180, 0],
+              duration: 800,
+              delay: anime.stagger(50, {start: 1400}),
+              easing: 'easeOutElastic(1, .5)'
+            });
           }
+
+          observer.unobserve(entry.target);
         }
       });
+    }, { threshold: 0.2 });
 
-      // Add hover effects for skill cards
-      const skillCards = document.querySelectorAll('.skill-card');
-      skillCards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          gsap.to(card, {
-            scale: 1.05,
-            y: -5,
-            duration: 0.3,
-            ease: 'power2.out'
-          });
-        });
-        
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, {
-            scale: 1,
-            y: 0,
-            duration: 0.3,
-            ease: 'power2.out'
-          });
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    // Add hover effects for skill cards
+    const skillCards = document.querySelectorAll('.skill-card');
+    skillCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        anime({
+          targets: card,
+          scale: 1.05,
+          translateY: -5,
+          duration: 300,
+          easing: 'easeOutQuad'
         });
       });
-
-      // Skill category cards animation
-      if (!barsAnimated.current) {
-        barsAnimated.current = true;
-
-        gsap.fromTo(sectionRef.current?.querySelectorAll(".skill-category"),
-          { opacity: 0, y: 50, scale: 0.95 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 80%",
-              once: true
-            }
-          }
-        );
-
-        // Skill bars animation
-        gsap.utils.toArray(sectionRef.current?.querySelectorAll(".skill-bar-fill")).forEach((bar) => {
-          const level = bar.dataset.level || 0;
-          const delay = parseInt(bar.dataset.delay || "0") / 1000;
-          
-          gsap.fromTo(bar,
-            { width: 0 },
-            {
-              width: `${level}%`,
-              duration: 1.4,
-              delay,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: bar,
-                start: "top 90%",
-                once: true
-              }
-            }
-          );
-        });
-      }
-
-      // Tool pills animation
-      if (!pillsAnimated.current) {
-        pillsAnimated.current = true;
-
-        gsap.fromTo(pillsRef.current?.querySelectorAll(".tool-pill"),
-          { opacity: 0, y: 20, scale: 0.9 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.5,
-            stagger: 0.05,
-            ease: "back.out(1.7)",
-            scrollTrigger: {
-              trigger: pillsRef.current,
-              start: "top 90%",
-              once: true
-            }
-          }
-        );
-      }
-
-      // Hover effects for skill categories
-      const categories = sectionRef.current?.querySelectorAll(".skill-category");
-      categories?.forEach((category) => {
-        category.addEventListener("mouseenter", () => {
-          gsap.to(category, {
-            y: -5,
-            duration: 0.3,
-            ease: "power2.out"
-          });
-        });
-        category.addEventListener("mouseleave", () => {
-          gsap.to(category, {
-            y: 0,
-            duration: 0.3,
-            ease: "power2.out"
-          });
+      
+      card.addEventListener('mouseleave', () => {
+        anime({
+          targets: card,
+          scale: 1,
+          translateY: 0,
+          duration: 300,
+          easing: 'easeOutQuad'
         });
       });
     });
 
-    return () => ctx.revert();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (

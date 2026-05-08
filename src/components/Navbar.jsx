@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+import anime from 'animejs';
 
 const navLinks = [
   { label: 'Home', href: 'home' },
@@ -40,7 +40,7 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
-  // Magnetic button effect with GSAP
+  // Magnetic button effect with anime.js
   useEffect(() => {
     const buttons = navRef.current?.querySelectorAll('.magnetic-btn');
     if (!buttons) return;
@@ -51,20 +51,22 @@ export default function Navbar() {
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
         
-        gsap.to(btn, {
-          x: x * 0.3,
-          y: y * 0.3,
-          duration: 0.3,
-          ease: 'power2.out'
+        anime({
+          targets: btn,
+          translateX: x * 0.3,
+          translateY: y * 0.3,
+          duration: 300,
+          easing: 'easeOutQuad'
         });
       });
 
       btn.addEventListener('mouseleave', () => {
-        gsap.to(btn, {
-          x: 0,
-          y: 0,
-          duration: 0.5,
-          ease: 'elastic.out(1, 0.5)'
+        anime({
+          targets: btn,
+          translateX: 0,
+          translateY: 0,
+          duration: 500,
+          easing: 'easeOutElastic(1, .5)'
         });
       });
     });

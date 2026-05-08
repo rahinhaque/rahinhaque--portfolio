@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import anime from 'animejs';
 import {
   FaTrophy,
   FaGlobe,
@@ -11,8 +10,6 @@ import {
   FaStore,
   FaCode,
 } from "react-icons/fa";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const projects = [
   {
@@ -117,85 +114,83 @@ export default function Projects() {
   const filtered =
     filter === "featured" ? projects.filter((p) => p.featured) : projects;
 
-  /* GSAP Animations for Projects section */
+  /* anime.js Animations for Projects section */
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Reveal section header
-      gsap.fromTo(sectionRef.current?.querySelectorAll(".reveal"),
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-            once: true
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Reveal section header
+          const revealElements = sectionRef.current?.querySelectorAll(".reveal");
+          if (revealElements) {
+            anime({
+              targets: revealElements,
+              opacity: [0, 1],
+              translateY: [40, 0],
+              duration: 800,
+              delay: anime.stagger(100),
+              easing: 'easeOutExpo'
+            });
           }
-        }
-      );
 
-      // Filter buttons animation
-      gsap.fromTo(sectionRef.current?.querySelectorAll(".filter-btn"),
-        { opacity: 0, y: 20, scale: 0.9 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.08,
-          ease: "back.out(1.7)",
-          scrollTrigger: {
-            trigger: sectionRef.current?.querySelector(".filter-btn"),
-            start: "top 90%",
-            once: true
+          // Filter buttons animation
+          const filterButtons = sectionRef.current?.querySelectorAll(".filter-btn");
+          if (filterButtons) {
+            anime({
+              targets: filterButtons,
+              opacity: [0, 1],
+              translateY: [20, 0],
+              scale: [0.9, 1],
+              duration: 600,
+              delay: anime.stagger(80, {start: 400}),
+              easing: 'easeOutElastic(1, .8)'
+            });
           }
-        }
-      );
 
-      // GitHub CTA animation
-      gsap.fromTo(sectionRef.current?.querySelector(".github-cta"),
-        { opacity: 0, y: 30, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.7,
-          ease: "back.out(1.3)",
-          scrollTrigger: {
-            trigger: sectionRef.current?.querySelector(".github-cta"),
-            start: "top 85%",
-            once: true
+          // GitHub CTA animation
+          const githubCta = sectionRef.current?.querySelector(".github-cta");
+          if (githubCta) {
+            anime({
+              targets: githubCta,
+              opacity: [0, 1],
+              translateY: [30, 0],
+              scale: [0.95, 1],
+              duration: 700,
+              delay: 600,
+              easing: 'easeOutElastic(1, .8)'
+            });
           }
-        }
-      );
-    });
 
-    return () => ctx.revert();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
-  /* Animate cards whenever filter changes with GSAP stagger */
+  /* Animate cards whenever filter changes with anime.js stagger */
   useEffect(() => {
     const cards = gridRef.current?.querySelectorAll(".project-card");
     if (!cards?.length) return;
     
-    // First, set all cards to initial state
-    gsap.set(cards, { opacity: 0, y: 50, scale: 0.94 });
-    
-    // Then animate them in with stagger
-    gsap.to(cards, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.7,
-      stagger: 0.09,
-      ease: "power3.out"
+    anime({
+      targets: cards,
+      opacity: [0, 1],
+      translateY: [50, 0],
+      scale: [0.94, 1],
+      duration: 700,
+      delay: anime.stagger(90),
+      easing: 'easeOutExpo'
     });
   }, [filter]);
 
-  /* Card tilt animation with mouse tracking */
+  /* Card tilt animation with mouse tracking using anime.js */
   const handleMouseMove = (e, projectId) => {
     const card = cardRefs.current[projectId];
     if (!card) return;
@@ -207,17 +202,15 @@ export default function Projects() {
     const mouseX = e.clientX;
     const mouseY = e.clientY;
     
-    // Calculate rotation angles based on mouse position relative to center
-    const rotateY = ((mouseX - centerX) / (rect.width / 2)) * 15; // Max 15 degrees
-    const rotateX = -((mouseY - centerY) / (rect.height / 2)) * 15; // Max 15 degrees
+    const rotateY = ((mouseX - centerX) / (rect.width / 2)) * 15;
+    const rotateX = -((mouseY - centerY) / (rect.height / 2)) * 15;
     
-    // Apply tilt animation with GSAP
-    gsap.to(card, {
+    anime({
+      targets: card,
       rotateX: rotateX,
       rotateY: rotateY,
-      duration: 0.3,
-      ease: "power2.out",
-      transformPerspective: 1000
+      duration: 300,
+      easing: 'easeOutQuad'
     });
   };
 
@@ -225,12 +218,12 @@ export default function Projects() {
     const card = cardRefs.current[projectId];
     if (!card) return;
     
-    // Reset card to original position
-    gsap.to(card, {
+    anime({
+      targets: card,
       rotateX: 0,
       rotateY: 0,
-      duration: 0.5,
-      ease: "power2.out"
+      duration: 500,
+      easing: 'easeOutQuad'
     });
   };
 

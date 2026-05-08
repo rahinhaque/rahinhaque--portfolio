@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import anime from 'animejs';
 import {
   FaGithub,
   FaLinkedin,
@@ -10,8 +9,6 @@ import {
   FaHeart,
   FaArrowUp,
 } from "react-icons/fa";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const navLinks = [
   { name: "Home", href: "#home" },
@@ -61,78 +58,81 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Reveal footer elements
-      gsap.fromTo(footerRef.current?.querySelectorAll(".reveal"),
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: "top 90%",
-            once: true
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Reveal footer elements
+          const revealElements = footerRef.current?.querySelectorAll(".reveal");
+          if (revealElements) {
+            anime({
+              targets: revealElements,
+              opacity: [0, 1],
+              translateY: [40, 0],
+              duration: 800,
+              delay: anime.stagger(100),
+              easing: 'easeOutExpo'
+            });
           }
-        }
-      );
 
-      // CTA strip animation
-      gsap.fromTo(footerRef.current?.querySelector(".footer-cta-strip"),
-        { opacity: 0, scale: 0.95 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: footerRef.current?.querySelector(".footer-cta-strip"),
-            start: "top 85%",
-            once: true
+          // CTA strip animation
+          const ctaStrip = footerRef.current?.querySelector(".footer-cta-strip");
+          if (ctaStrip) {
+            anime({
+              targets: ctaStrip,
+              opacity: [0, 1],
+              scale: [0.95, 1],
+              duration: 1000,
+              delay: 400,
+              easing: 'easeOutExpo'
+            });
           }
-        }
-      );
 
-      // Footer grid columns animation
-      gsap.fromTo(footerRef.current?.querySelectorAll(".footer-grid > div"),
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: footerRef.current?.querySelector(".footer-grid"),
-            start: "top 85%",
-            once: true
+          // Footer grid columns animation
+          const gridColumns = footerRef.current?.querySelectorAll(".footer-grid > div");
+          if (gridColumns) {
+            anime({
+              targets: gridColumns,
+              opacity: [0, 1],
+              translateY: [30, 0],
+              duration: 700,
+              delay: anime.stagger(100, {start: 600}),
+              easing: 'easeOutExpo'
+            });
           }
-        }
-      );
 
-      // Social icons hover animation
-      const socialIcons = footerRef.current?.querySelectorAll(".social-icon-btn");
-      socialIcons?.forEach((icon) => {
-        icon.addEventListener("mouseenter", () => {
-          gsap.to(icon, {
-            y: -5,
-            duration: 0.3,
-            ease: "power2.out"
-          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    // Social icons hover animation
+    const socialIcons = footerRef.current?.querySelectorAll(".social-icon-btn");
+    socialIcons?.forEach((icon) => {
+      icon.addEventListener("mouseenter", () => {
+        anime({
+          targets: icon,
+          translateY: -5,
+          duration: 300,
+          easing: 'easeOutQuad'
         });
-        icon.addEventListener("mouseleave", () => {
-          gsap.to(icon, {
-            y: 0,
-            duration: 0.3,
-            ease: "power2.out"
-          });
+      });
+      icon.addEventListener("mouseleave", () => {
+        anime({
+          targets: icon,
+          translateY: 0,
+          duration: 300,
+          easing: 'easeOutQuad'
         });
       });
     });
 
-    return () => ctx.revert();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const scrollTo = (id) =>

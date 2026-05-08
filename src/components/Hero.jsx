@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import * as THREE from 'three';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import anime from 'animejs';
 
 export default function Hero() {
   const canvasRef = useRef(null);
@@ -45,30 +44,37 @@ export default function Hero() {
     );
     camera.position.z = 50;
 
-    // ── Particle System (enhanced) ──
-    const particleCount = 400;
+    // ── Particle System (enhanced from ThreeBackground) ──
+    const particleCount = 800;
     const particlePositions = new Float32Array(particleCount * 3);
     const particleColors = new Float32Array(particleCount * 3);
     const particleSizes = new Float32Array(particleCount);
 
     const colorPalette = [
-      new THREE.Color(0x00f0ff), // cyan
-      new THREE.Color(0xa855f7), // purple
-      new THREE.Color(0xec4899), // pink
+      new THREE.Color(0x00d4ff), // cyan
+      new THREE.Color(0x8b5cf6), // purple
+      new THREE.Color(0x10b981), // green
+      new THREE.Color(0xf59e0b), // orange
     ];
 
     for (let i = 0; i < particleCount; i++) {
       const i3 = i * 3;
-      particlePositions[i3] = (Math.random() - 0.5) * 150;
-      particlePositions[i3 + 1] = (Math.random() - 0.5) * 150;
-      particlePositions[i3 + 2] = (Math.random() - 0.5) * 150;
+      
+      // Create a more distributed spherical particle field
+      const radius = Math.random() * 100 + 20;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
+      particlePositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+      particlePositions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      particlePositions[i3 + 2] = radius * Math.cos(phi);
 
       const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
       particleColors[i3] = color.r;
       particleColors[i3 + 1] = color.g;
       particleColors[i3 + 2] = color.b;
 
-      particleSizes[i] = Math.random() * 1.5 + 0.5;
+      particleSizes[i] = Math.random() * 2 + 0.5;
     }
 
     const particleGeometry = new THREE.BufferGeometry();
@@ -98,9 +104,10 @@ export default function Hero() {
     ];
 
     const shapeMaterials = [
-      new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true, transparent: true, opacity: 0.3 }),
-      new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.3 }),
-      new THREE.MeshBasicMaterial({ color: 0xec4899, wireframe: true, transparent: true, opacity: 0.3 }),
+      new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.3 }),
+      new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true, transparent: true, opacity: 0.3 }),
+      new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.3 }),
+      new THREE.MeshBasicMaterial({ color: 0xf59e0b, wireframe: true, transparent: true, opacity: 0.3 }),
     ];
 
     for (let i = 0; i < 8; i++) {
@@ -171,22 +178,25 @@ export default function Hero() {
     const tick = () => {
       animId = requestAnimationFrame(tick);
       const elapsed = clock.getElapsedTime();
+      const time = Date.now() * 0.0005;
 
       // Smooth camera movement
       camera.position.x += (targetMouseX * 8 - camera.position.x) * 0.03;
       camera.position.y += (-targetMouseY * 5 - camera.position.y) * 0.03;
       camera.lookAt(scene.position);
 
-      // Rotate particles
-      particles.rotation.y += 0.0005;
-      particles.rotation.x += 0.0002;
+      // Rotate particles with enhanced rotation from ThreeBackground
+      particles.rotation.x = time * 0.1;
+      particles.rotation.y = time * 0.15;
 
-      // Animate shapes
-      shapes.forEach((shape) => {
-        shape.rotation.x += shape.userData.rotationSpeed.x;
-        shape.rotation.y += shape.userData.rotationSpeed.y;
-        shape.position.y = shape.userData.originalY + 
-          Math.sin(elapsed * shape.userData.floatSpeed + shape.userData.floatOffset) * 3;
+      // Animate shapes with enhanced floating motion
+      shapes.forEach((shape, index) => {
+        shape.rotation.x += 0.01 * (index % 2 === 0 ? 1 : -1);
+        shape.rotation.y += 0.015 * (index % 2 === 0 ? -1 : 1);
+        
+        // Enhanced floating motion
+        shape.position.y += Math.sin(time + index) * 0.02;
+        shape.position.x += Math.cos(time + index) * 0.01;
       });
 
       // Update lines between close particles
@@ -214,8 +224,7 @@ export default function Hero() {
         'position',
         new THREE.BufferAttribute(new Float32Array(linePositions), 3)
       );
-      lines.rotation.y = particles.rotation.y;
-      lines.rotation.x = particles.rotation.x;
+      lines.rotation.copy(particles.rotation);
 
       renderer.render(scene, camera);
     };
@@ -235,118 +244,136 @@ export default function Hero() {
     };
   }, []);
 
-  /* ── Enhanced Entrance animations with GSAP ─────────────────────────────── */
+  /* ── Enhanced Entrance animations with anime.js ─────────────────────────────── */
   useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-
     // Parallax background elements
-    tl.fromTo('[data-parallax="hero-bg"]',
-      { opacity: 0, scale: 1.2 },
-      { opacity: 1, scale: 1, duration: 2, ease: 'power2.out' },
-      0
-    )
-    // Tag entrance with bounce
-    .fromTo(tagRef.current,
-      { opacity: 0, y: 50, scale: 0.8 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'back.out(1.7)' },
-      0.5
-    )
-    // Name with dramatic entrance
-    .fromTo(nameRef.current,
-      { opacity: 0, y: 80, scale: 0.9, rotationX: 45 },
-      { opacity: 1, y: 0, scale: 1, rotationX: 0, duration: 1.2, ease: 'power3.out' },
-      '-=0.4'
-    )
-    // Headline words with staggered reveal
-    .fromTo(headlineRef.current?.querySelectorAll('.word'),
-      { opacity: 0, y: 60, rotationY: -90, transformOrigin: 'left center' },
-      { 
-        opacity: 1, 
-        y: 0, 
-        rotationY: 0, 
-        duration: 0.8, 
-        stagger: 0.1,
-        ease: 'back.out(1.2)'
-      },
-      '-=0.6'
-    )
-    // Subtitle with slide and fade
-    .fromTo(subtitleRef.current,
-      { opacity: 0, y: 40, x: -30 },
-      { opacity: 1, y: 0, x: 0, duration: 0.9, ease: 'power2.out' },
-      '-=0.3'
-    )
-    // CTA buttons with elastic effect
-    .fromTo(ctaRef.current?.querySelectorAll('a, button'),
-      { opacity: 0, y: 30, scale: 0.8 },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        duration: 0.7, 
-        stagger: 0.15,
-        ease: 'elastic.out(1, 0.5)'
-      },
-      '-=0.4'
-    )
-    // Stats with counter animation
-    .fromTo(statsRef.current?.querySelectorAll('.stat-item'),
-      { opacity: 0, y: 40, scale: 0.9 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1 },
-      '-=0.3'
-    )
-    // Photo with 3D flip
-    .fromTo(photoRef.current,
-      { 
-        opacity: 0, 
-        scale: 0.7, 
-        rotationY: -90, 
-        rotationX: 15,
-        transformPerspective: 1000
-      },
-      { 
-        opacity: 1, 
-        scale: 1, 
-        rotationY: 0, 
-        rotationX: 0,
-        duration: 1.5,
-        ease: 'power3.inOut'
-      },
-      '-=0.8'
-    )
-    // Add floating animation to photo
-    .to(photoRef.current, {
-      y: -10,
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: 'power1.inOut'
-    }, '-=0.5');
-
-    // Scroll-based parallax for hero elements
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: 'top top',
-      end: 'bottom top',
-      onUpdate: (self) => {
-        const progress = self.progress;
-        gsap.to('[data-parallax="hero-bg"]', {
-          y: progress * 100,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-        gsap.to(photoRef.current, {
-          y: progress * 50,
-          rotationY: progress * 10,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      }
+    anime({
+      targets: '[data-parallax="hero-bg"]',
+      opacity: [0, 1],
+      scale: [1.2, 1],
+      duration: 2000,
+      easing: 'easeOutExpo'
     });
 
+    // Tag entrance with bounce
+    anime({
+      targets: tagRef.current,
+      opacity: [0, 1],
+      translateY: [50, 0],
+      scale: [0.8, 1],
+      duration: 800,
+      delay: 500,
+      easing: 'easeOutElastic(1, .8)'
+    });
+
+    // Name with dramatic entrance
+    anime({
+      targets: nameRef.current,
+      opacity: [0, 1],
+      translateY: [80, 0],
+      scale: [0.9, 1],
+      duration: 1200,
+      delay: 700,
+      easing: 'easeOutExpo'
+    });
+
+    // Headline words with staggered reveal
+    if (headlineRef.current) {
+      const words = headlineRef.current.querySelectorAll('.word');
+      anime({
+        targets: words,
+        opacity: [0, 1],
+        translateY: [60, 0],
+        duration: 800,
+        delay: anime.stagger(100, {start: 900}),
+        easing: 'easeOutExpo'
+      });
+    }
+
+    // Subtitle with slide and fade
+    anime({
+      targets: subtitleRef.current,
+      opacity: [0, 1],
+      translateY: [40, 0],
+      translateX: [-30, 0],
+      duration: 900,
+      delay: 1200,
+      easing: 'easeOutExpo'
+    });
+
+    // CTA buttons with elastic effect
+    if (ctaRef.current) {
+      const buttons = ctaRef.current.querySelectorAll('a, button');
+      anime({
+        targets: buttons,
+        opacity: [0, 1],
+        translateY: [30, 0],
+        scale: [0.8, 1],
+        duration: 700,
+        delay: anime.stagger(150, {start: 1400}),
+        easing: 'easeOutElastic(1, .5)'
+      });
+    }
+
+    // Stats with counter animation
+    if (statsRef.current) {
+      const statItems = statsRef.current.querySelectorAll('.stat-item');
+      anime({
+        targets: statItems,
+        opacity: [0, 1],
+        translateY: [40, 0],
+        scale: [0.9, 1],
+        duration: 800,
+        delay: anime.stagger(100, {start: 1700}),
+        easing: 'easeOutExpo'
+      });
+    }
+
+    // Photo with 3D flip
+    anime({
+      targets: photoRef.current,
+      opacity: [0, 1],
+      scale: [0.7, 1],
+      duration: 1500,
+      delay: 1600,
+      easing: 'easeOutExpo'
+    });
+
+    // Add floating animation to photo
+    anime({
+      targets: photoRef.current,
+      translateY: [-10, 0],
+      duration: 2000,
+      direction: 'alternate',
+      loop: true,
+      easing: 'easeInOutSine'
+    });
+
+    // Scroll-based parallax for hero elements
+    const handleScroll = () => {
+      const scrollY = window.pageYOffset;
+      const progress = Math.min(scrollY / 500, 1);
+      
+      anime({
+        targets: '[data-parallax="hero-bg"]',
+        translateY: progress * 100,
+        duration: 0,
+        easing: 'linear'
+      });
+      
+      anime({
+        targets: photoRef.current,
+        translateY: progress * 50,
+        rotateY: progress * 10,
+        duration: 0,
+        easing: 'linear'
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 

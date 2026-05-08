@@ -1,108 +1,24 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { TextPlugin } from 'gsap/TextPlugin';
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import About from '@/components/About';
-import Skills from '@/components/Skills';
-import Projects from '@/components/Projects';
-import Testimonials from '@/components/Testimonials';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
-
-// Configure GSAP for optimal performance
-gsap.config({
-  force3D: true,
-  nullTargetWarn: false
-});
-
-gsap.registerPlugin(ScrollTrigger, TextPlugin);
-
-// Advanced animation utilities
-const createSmoothScroll = () => {
-  const html = document.documentElement;
-  const body = document.body;
-  
-  let scrollY = 0;
-  let currentScroll = 0;
-  let targetScroll = 0;
-  let ease = 0.1;
-  
-  const lerp = (start, end, t) => start * (1 - t) + end * t;
-  
-  const updateScroll = () => {
-    targetScroll = window.pageYOffset || document.documentElement.scrollTop;
-    
-    if (Math.abs(targetScroll - currentScroll) > 0.1) {
-      currentScroll = lerp(currentScroll, targetScroll, ease);
-      html.style.setProperty('--scroll-y', currentScroll + 'px');
-    }
-    
-    requestAnimationFrame(updateScroll);
-  };
-  
-  updateScroll();
-};
-
-const createPageTransition = () => {
-  const overlay = document.createElement('div');
-  overlay.className = 'page-transition-overlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-  `;
-  
-  const loader = document.createElement('div');
-  loader.className = 'page-loader';
-  loader.innerHTML = `
-    <div style="width: 60px; height: 60px; border: 3px solid rgba(0,212,255,0.2); border-top: 3px solid #00d4ff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-  `;
-  
-  overlay.appendChild(loader);
-  document.body.appendChild(overlay);
-  
-  gsap.to(overlay, {
-    opacity: 0,
-    duration: 0.8,
-    delay: 0.5,
-    ease: 'power2.out',
-    onComplete: () => {
-      overlay.remove();
-    }
-  });
-  
-  // Add CSS animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(style);
-};
+import { useEffect, useRef, useState } from "react";
+import anime from 'animejs';
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import Skills from "@/components/Skills";
+import Projects from "@/components/Projects";
+import Testimonials from "@/components/Testimonials";
+import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
+import ThreeBackground from "@/components/ThreeBackground";
+import Loader from "@/components/Loader";
 
 export default function Home() {
   const mainRef = useRef(null);
+  const [loaderComplete, setLoaderComplete] = useState(false);
 
   useEffect(() => {
-    // Initialize advanced animation system
-    createPageTransition();
-    createSmoothScroll();
-    
-    // Advanced smooth scrolling with GSAP
+    // Smooth scroll for anchor links using anime.js
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -111,123 +27,113 @@ export default function Home() {
         
         const target = document.querySelector(targetId);
         if (target) {
-          gsap.to(window, {
-            duration: 1.2,
-            scrollTo: {
-              y: target,
-              offsetY: 80,
-              autoKill: false
-            },
-            ease: 'power3.inOut'
+          const targetY = target.getBoundingClientRect().top + window.pageYOffset - 80;
+          anime({
+            targets: [document.documentElement, document.body],
+            scrollTop: targetY,
+            duration: 1200,
+            easing: 'easeInOutCubic'
           });
         }
       });
     });
 
-    // Enhanced micro-interactions for all interactive elements
+    // Enhanced micro-interactions for all interactive elements using anime.js
     const interactiveElements = document.querySelectorAll('button, a, .project-card, .skill-card, .tool-item');
     interactiveElements.forEach(element => {
       element.addEventListener('mouseenter', () => {
-        gsap.to(element, {
+        anime({
+          targets: element,
           scale: 1.02,
-          duration: 0.3,
-          ease: 'power2.out',
-          force3D: true
+          duration: 300,
+          easing: 'easeOutQuad'
         });
       });
       
       element.addEventListener('mouseleave', () => {
-        gsap.to(element, {
+        anime({
+          targets: element,
           scale: 1,
-          duration: 0.3,
-          ease: 'power2.out',
-          force3D: true
+          duration: 300,
+          easing: 'easeOutQuad'
         });
       });
     });
 
-    // Parallax background elements
-    const createParallax = () => {
-      const parallaxElements = document.querySelectorAll('[data-parallax]');
+    // Parallax background elements using anime.js
+    const parallaxElements = document.querySelectorAll('[data-parallax]');
+    
+    const updateParallax = () => {
+      const scrollY = window.pageYOffset;
       
-      const updateParallax = () => {
-        const scrollY = window.pageYOffset;
-        
-        parallaxElements.forEach(element => {
-          const speed = element.dataset.parallax || 0.5;
-          const yPos = -(scrollY * speed);
-          gsap.to(element, {
-            y: yPos,
-            duration: 0.5,
-            ease: 'power2.out'
+      parallaxElements.forEach(element => {
+        const speed = parseFloat(element.dataset.parallax) || 0.5;
+        const yPos = -(scrollY * speed);
+        anime({
+          targets: element,
+          translateY: yPos,
+          duration: 0,
+          easing: 'linear'
+        });
+      });
+    };
+
+    window.addEventListener('scroll', updateParallax, { passive: true });
+
+    // Staggered section reveals using anime.js
+    const sections = document.querySelectorAll('section');
+    
+    sections.forEach(section => {
+      const elements = section.querySelectorAll('.reveal, .skill-card, .project-card, .tool-item, .info-card');
+      
+      if (elements.length > 0) {
+        anime({
+          targets: elements,
+          opacity: [0, 1],
+          translateY: [60, 0],
+          scale: [0.95, 1],
+          duration: 800,
+          delay: anime.stagger(100),
+          easing: 'easeOutCubic',
+          autoplay: false
+        });
+
+        // Use Intersection Observer to trigger animations
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              anime({
+                targets: elements,
+                opacity: [0, 1],
+                translateY: [60, 0],
+                scale: [0.95, 1],
+                duration: 800,
+                delay: anime.stagger(100),
+                easing: 'easeOutCubic'
+              });
+              observer.unobserve(entry.target);
+            }
           });
-        });
-      };
-      
-      ScrollTrigger.create({
-        trigger: 'body',
-        start: 'top top',
-        end: 'bottom bottom',
-        onUpdate: updateParallax
-      });
-    };
+        }, { threshold: 0.2 });
 
-    // Staggered section reveals
-    const createSectionReveals = () => {
-      const sections = document.querySelectorAll('section');
-      
-      sections.forEach((section, index) => {
-        const elements = section.querySelectorAll('.reveal, .skill-card, .project-card, .tool-item, .info-card');
-        
-        gsap.fromTo(elements, {
-          opacity: 0,
-          y: 60,
-          scale: 0.95
-        }, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 80%',
-            end: 'bottom 20%',
-            toggleActions: 'play none none reverse'
-          }
-        });
-      });
-    };
-
-    // Initialize advanced animations
-    setTimeout(() => {
-      createParallax();
-      createSectionReveals();
-    }, 1000);
-
-    // Performance optimizations
-    let ticking = false;
-    const optimizedScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          ticking = false;
-        });
-        ticking = true;
+        observer.observe(section);
       }
-    };
-
-    window.addEventListener('scroll', optimizedScroll, { passive: true });
+    });
 
     // Cleanup on unmount
     return () => {
-      window.removeEventListener('scroll', optimizedScroll);
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      window.removeEventListener('scroll', updateParallax);
     };
-  }, []);
+  }, [loaderComplete]);
+
+  const handleLoaderComplete = () => {
+    setLoaderComplete(true);
+  };
 
   return (
     <>
+      <Loader onComplete={handleLoaderComplete} />
+      
       {/* Global styles for advanced animations */}
       <style jsx global>{`
         * {
@@ -379,7 +285,8 @@ export default function Home() {
         }
       `}</style>
       
-      <main ref={mainRef} className="relative" style={{ overflowX: 'hidden' }}>
+      <main ref={mainRef} className="relative" style={{ overflowX: 'hidden', display: loaderComplete ? 'block' : 'none' }}>
+        <ThreeBackground />
         <Navbar />
         <Hero />
         <About />
