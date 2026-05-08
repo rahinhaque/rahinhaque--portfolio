@@ -112,6 +112,7 @@ export default function Projects() {
   const sectionRef = useRef(null);
   const gridRef = useRef(null);
   const [filter, setFilter] = useState("all");
+  const cardRefs = useRef({});
 
   const filtered =
     filter === "featured" ? projects.filter((p) => p.featured) : projects;
@@ -138,16 +139,34 @@ export default function Projects() {
 
       // Filter buttons animation
       gsap.fromTo(sectionRef.current?.querySelectorAll(".filter-btn"),
-        { opacity: 0, y: 20 },
+        { opacity: 0, y: 20, scale: 0.9 },
         {
           opacity: 1,
           y: 0,
+          scale: 1,
           duration: 0.6,
           stagger: 0.08,
-          ease: "power2.out",
+          ease: "back.out(1.7)",
           scrollTrigger: {
             trigger: sectionRef.current?.querySelector(".filter-btn"),
             start: "top 90%",
+            once: true
+          }
+        }
+      );
+
+      // GitHub CTA animation
+      gsap.fromTo(sectionRef.current?.querySelector(".github-cta"),
+        { opacity: 0, y: 30, scale: 0.95 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          ease: "back.out(1.3)",
+          scrollTrigger: {
+            trigger: sectionRef.current?.querySelector(".github-cta"),
+            start: "top 85%",
             once: true
           }
         }
@@ -175,6 +194,45 @@ export default function Projects() {
       ease: "power3.out"
     });
   }, [filter]);
+
+  /* Card tilt animation with mouse tracking */
+  const handleMouseMove = (e, projectId) => {
+    const card = cardRefs.current[projectId];
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    
+    // Calculate rotation angles based on mouse position relative to center
+    const rotateY = ((mouseX - centerX) / (rect.width / 2)) * 15; // Max 15 degrees
+    const rotateX = -((mouseY - centerY) / (rect.height / 2)) * 15; // Max 15 degrees
+    
+    // Apply tilt animation with GSAP
+    gsap.to(card, {
+      rotateX: rotateX,
+      rotateY: rotateY,
+      duration: 0.3,
+      ease: "power2.out",
+      transformPerspective: 1000
+    });
+  };
+
+  const handleMouseLeave = (projectId) => {
+    const card = cardRefs.current[projectId];
+    if (!card) return;
+    
+    // Reset card to original position
+    gsap.to(card, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.5,
+      ease: "power2.out"
+    });
+  };
 
   return (
     <section
@@ -225,13 +283,38 @@ export default function Projects() {
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 20px;
           overflow: hidden;
-          transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
           position: relative;
+          transform-style: preserve-3d;
+          will-change: transform;
         }
         .project-card:hover {
           border-color: rgba(0,212,255,0.2);
           box-shadow: 0 16px 48px rgba(0,0,0,0.35);
-          transform: translateY(-6px);
+        }
+
+        /* card title animation */
+        .card-title {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          display: inline-block;
+        }
+        .card-title::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, currentColor, transparent);
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .project-card:hover .card-title {
+          transform: translateX(4px);
+          color: #fff;
+        }
+        .project-card:hover .card-title::after {
+          width: 100%;
         }
 
         /* card header */
@@ -438,7 +521,13 @@ export default function Projects() {
         {/* ── Project grid ── */}
         <div ref={gridRef} className="projects-grid">
           {filtered.map((project) => (
-            <article key={project.id} className="project-card">
+            <article 
+              key={project.id} 
+              className="project-card"
+              ref={(el) => cardRefs.current[project.id] = el}
+              onMouseMove={(e) => handleMouseMove(e, project.id)}
+              onMouseLeave={() => handleMouseLeave(project.id)}
+            >
               {/* Top accent line */}
               <div
                 style={{
@@ -487,6 +576,7 @@ export default function Projects() {
                 </div>
 
                 <h3
+                  className="card-title"
                   style={{
                     fontSize: "18px",
                     fontWeight: 800,

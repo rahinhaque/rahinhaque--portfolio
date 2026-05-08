@@ -98,60 +98,190 @@ export default function About() {
   const mainBoxRef = useRef(null);
   const cardsRef = useRef(null);
 
-  /* GSAP Animations for About section */
+  /* Enhanced GSAP Animations for About section with timeline effects */
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Reveal section header
-      gsap.fromTo(sectionRef.current?.querySelectorAll(".reveal"),
-        { opacity: 0, y: 40 },
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          once: true
+        }
+      });
+
+      // Dramatic section header reveal
+      tl.fromTo(sectionRef.current?.querySelectorAll(".reveal"),
+        { 
+          opacity: 0, 
+          y: 80, 
+          rotationX: 45,
+          transformPerspective: 1000
+        },
         {
           opacity: 1,
           y: 0,
+          rotationX: 0,
+          duration: 1.2,
+          stagger: 0.15,
+          ease: "power4.out"
+        }
+      )
+      // Main box with 3D flip effect
+      .fromTo(mainBoxRef.current,
+        { 
+          opacity: 0, 
+          y: 100, 
+          scale: 0.8,
+          rotationY: -30,
+          transformPerspective: 1200
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotationY: 0,
+          duration: 1.5,
+          ease: "back.out(1.3)"
+        },
+        "-=0.6"
+      )
+      // Quick facts with staggered bounce
+      .fromTo(".quick-fact",
+        { 
+          opacity: 0, 
+          y: 60, 
+          scale: 0.7,
+          rotation: -10
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotation: 0,
           duration: 0.8,
           stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-            once: true
-          }
-        }
-      );
-
-      // Main box animation
-      gsap.fromTo(mainBoxRef.current,
-        { opacity: 0, y: 50, scale: 0.96 },
+          ease: "elastic.out(1, 0.5)"
+        },
+        "-=0.8"
+      )
+      // Info cards with cascade effect
+      .fromTo(cardsRef.current?.querySelectorAll(".info-card"),
+        { 
+          opacity: 0, 
+          y: 80, 
+          scale: 0.9,
+          rotationX: -15,
+          transformPerspective: 1000
+        },
         {
           opacity: 1,
           y: 0,
           scale: 1,
+          rotationX: 0,
           duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: mainBoxRef.current,
-            start: "top 85%",
-            once: true
-          }
-        }
-      );
-
-      // Info cards stagger animation
-      gsap.fromTo(cardsRef.current?.querySelectorAll(".info-card"),
-        { opacity: 0, y: 50, scale: 0.95 },
+          stagger: 0.2,
+          ease: "power3.out"
+        },
+        "-=0.4"
+      )
+      // Stack bars with animated counters
+      .fromTo(".stack-bar",
+        { 
+          opacity: 0, 
+          x: -50,
+          width: 0
+        },
         {
           opacity: 1,
-          y: 0,
+          x: 0,
+          width: function() {
+            return this.getAttribute("data-width") + "%";
+          },
+          duration: 1,
+          stagger: 0.15,
+          ease: "power3.out"
+        },
+        "-=0.6"
+      )
+      // Tool icons with rotation effect
+      .fromTo(".tool-item",
+        { 
+          opacity: 0, 
+          scale: 0.3,
+          rotation: -180
+        },
+        {
+          opacity: 1,
           scale: 1,
+          rotation: 0,
           duration: 0.8,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: "top 85%",
-            once: true
-          }
-        }
+          stagger: 0.08,
+          ease: "back.out(1.5)"
+        },
+        "-=0.4"
       );
+
+      // Add parallax effect to main box
+      ScrollTrigger.create({
+        trigger: mainBoxRef.current,
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const progress = self.progress;
+          gsap.to(mainBoxRef.current, {
+            y: progress * 30,
+            duration: 0.5,
+            ease: "power2.out"
+          });
+        }
+      });
+
+      // Interactive hover effects for info cards
+      const infoCards = document.querySelectorAll('.info-card');
+      infoCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            scale: 1.05,
+            y: -8,
+            rotationY: 5,
+            duration: 0.4,
+            ease: 'power2.out',
+            transformPerspective: 1000
+          });
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            scale: 1,
+            y: 0,
+            rotationY: 0,
+            duration: 0.4,
+            ease: 'power2.out'
+          });
+        });
+      });
+
+      // Tool items hover animation
+      const toolItems = document.querySelectorAll('.tool-item');
+      toolItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+          gsap.to(item, {
+            scale: 1.2,
+            rotation: 10,
+            duration: 0.3,
+            ease: 'back.out(1.7)'
+          });
+        });
+        
+        item.addEventListener('mouseleave', () => {
+          gsap.to(item, {
+            scale: 1,
+            rotation: 0,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+      });
 
       // Tool chips hover animation
       const toolChips = sectionRef.current?.querySelectorAll(".tool-chip");

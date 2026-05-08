@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export default function Hero() {
   const canvasRef = useRef(null);
@@ -234,46 +235,119 @@ export default function Hero() {
     };
   }, []);
 
-  /* ── Entrance animations with GSAP ─────────────────────────────── */
+  /* ── Enhanced Entrance animations with GSAP ─────────────────────────────── */
   useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
-    tl.fromTo(tagRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, delay: 0.3 }
+    // Parallax background elements
+    tl.fromTo('[data-parallax="hero-bg"]',
+      { opacity: 0, scale: 1.2 },
+      { opacity: 1, scale: 1, duration: 2, ease: 'power2.out' },
+      0
     )
+    // Tag entrance with bounce
+    .fromTo(tagRef.current,
+      { opacity: 0, y: 50, scale: 0.8 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'back.out(1.7)' },
+      0.5
+    )
+    // Name with dramatic entrance
     .fromTo(nameRef.current,
-      { opacity: 0, y: 60, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 1 },
+      { opacity: 0, y: 80, scale: 0.9, rotationX: 45 },
+      { opacity: 1, y: 0, scale: 1, rotationX: 0, duration: 1.2, ease: 'power3.out' },
       '-=0.4'
     )
+    // Headline words with staggered reveal
     .fromTo(headlineRef.current?.querySelectorAll('.word'),
-      { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 },
+      { opacity: 0, y: 60, rotationY: -90, transformOrigin: 'left center' },
+      { 
+        opacity: 1, 
+        y: 0, 
+        rotationY: 0, 
+        duration: 0.8, 
+        stagger: 0.1,
+        ease: 'back.out(1.2)'
+      },
       '-=0.6'
     )
+    // Subtitle with slide and fade
     .fromTo(subtitleRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8 },
+      { opacity: 0, y: 40, x: -30 },
+      { opacity: 1, y: 0, x: 0, duration: 0.9, ease: 'power2.out' },
       '-=0.3'
     )
+    // CTA buttons with elastic effect
     .fromTo(ctaRef.current?.querySelectorAll('a, button'),
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 },
+      { opacity: 0, y: 30, scale: 0.8 },
+      { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
+        duration: 0.7, 
+        stagger: 0.15,
+        ease: 'elastic.out(1, 0.5)'
+      },
       '-=0.4'
     )
+    // Stats with counter animation
     .fromTo(statsRef.current?.querySelectorAll('.stat-item'),
-      { opacity: 0, y: 25 },
-      { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 },
+      { opacity: 0, y: 40, scale: 0.9 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1 },
       '-=0.3'
     )
+    // Photo with 3D flip
     .fromTo(photoRef.current,
-      { opacity: 0, scale: 0.85, rotation: -5 },
-      { opacity: 1, scale: 1, rotation: 0, duration: 1.2 },
+      { 
+        opacity: 0, 
+        scale: 0.7, 
+        rotationY: -90, 
+        rotationX: 15,
+        transformPerspective: 1000
+      },
+      { 
+        opacity: 1, 
+        scale: 1, 
+        rotationY: 0, 
+        rotationX: 0,
+        duration: 1.5,
+        ease: 'power3.inOut'
+      },
       '-=0.8'
-    );
+    )
+    // Add floating animation to photo
+    .to(photoRef.current, {
+      y: -10,
+      duration: 2,
+      repeat: -1,
+      yoyo: true,
+      ease: 'power1.inOut'
+    }, '-=0.5');
 
-    return () => tl.kill();
+    // Scroll-based parallax for hero elements
+    ScrollTrigger.create({
+      trigger: containerRef.current,
+      start: 'top top',
+      end: 'bottom top',
+      onUpdate: (self) => {
+        const progress = self.progress;
+        gsap.to('[data-parallax="hero-bg"]', {
+          y: progress * 100,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+        gsap.to(photoRef.current, {
+          y: progress * 50,
+          rotationY: progress * 10,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      }
+    });
+
+    return () => {
+      tl.kill();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
   const scrollTo = (id) =>
