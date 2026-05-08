@@ -429,7 +429,7 @@ export default function Footer() {
         {/* ── 4-column grid ── */}
         <div className="footer-grid">
           {/* Brand */}
-          <div className="reveal">
+          <div>
             <div
               style={{
                 display: "flex",
@@ -508,7 +508,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="reveal reveal-delay-1">
+          <div className="reveal-delay-1">
             <p className="footer-col-head">
               <span
                 className="col-head-dot"
@@ -532,7 +532,7 @@ export default function Footer() {
           </div>
 
           {/* What I Do */}
-          <div className="reveal reveal-delay-2">
+          <div className="reveal-delay-2">
             <p className="footer-col-head">
               <span
                 className="col-head-dot"
@@ -553,7 +553,7 @@ export default function Footer() {
           </div>
 
           {/* Let's Connect */}
-          <div className="reveal reveal-delay-3">
+          <div className="reveal-delay-3">
             <p className="footer-col-head">
               <span
                 className="col-head-dot"
@@ -657,7 +657,7 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="footer-bottom reveal">
+        <div className="footer-bottom">
           <p
             style={{
               textAlign: "left",
