@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import anime from 'animejs';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SiMongodb, SiPostman } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
 import { FaGitAlt, FaFigma, FaGithub } from "react-icons/fa";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const tools = [
   { name: "VS Code", icon: <VscVscode size={22} />, color: "#007ACC" },
@@ -96,171 +99,115 @@ export default function About() {
   const cardsRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const revealElements = sectionRef.current?.querySelectorAll(".reveal");
-          if (revealElements) {
-            anime({
-              targets: revealElements,
-              opacity: [0, 1],
-              translateY: [80, 0],
-              duration: 1200,
-              delay: anime.stagger(150),
-              easing: "easeOutExpo",
-            });
-          }
-
-          anime({
-            targets: mainBoxRef.current,
-            opacity: [0, 1],
-            translateY: [100, 0],
-            scale: [0.8, 1],
-            duration: 1500,
-            delay: 600,
-            easing: "easeOutElastic(1, .8)",
-          });
-
-          anime({
-            targets: ".quick-fact",
-            opacity: [0, 1],
-            translateY: [60, 0],
-            scale: [0.7, 1],
-            duration: 800,
-            delay: anime.stagger(100, { start: 900 }),
-            easing: "easeOutElastic(1, .5)",
-          });
-
-          const infoCards = cardsRef.current?.querySelectorAll(".info-card");
-          if (infoCards) {
-            anime({
-              targets: infoCards,
-              opacity: [0, 1],
-              translateY: [80, 0],
-              scale: [0.9, 1],
-              duration: 1000,
-              delay: anime.stagger(200, { start: 1200 }),
-              easing: "easeOutExpo",
-            });
-          }
-
-          anime({
-            targets: ".stack-bar",
-            opacity: [0, 1],
-            translateX: [-50, 0],
-            width: function () {
-              return this.getAttribute("data-width") + "%";
-            },
-            duration: 1000,
-            delay: anime.stagger(150, { start: 1400 }),
-            easing: "easeOutExpo",
-          });
-
-          anime({
-            targets: ".tool-item",
-            opacity: [0, 1],
-            scale: [0.3, 1],
-            rotate: [-180, 0],
-            duration: 800,
-            delay: anime.stagger(80, { start: 1600 }),
-            easing: "easeOutElastic(1, .8)",
-          });
-
-          observer.unobserve(entry.target);
+    const revealElements = sectionRef.current?.querySelectorAll(".reveal");
+    if (revealElements) {
+      gsap.set(revealElements, { opacity: 0, y: 80 });
+      gsap.to(revealElements, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
         }
       });
-    }, { threshold: 0.2 });
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
     }
 
-    const handleScroll = () => {
-      const scrollY = window.pageYOffset;
-      const progress = Math.min(scrollY / 500, 1);
-
-      if (mainBoxRef.current) {
-        anime({
-          targets: mainBoxRef.current,
-          translateY: progress * 30,
-          duration: 0,
-          easing: "linear",
-        });
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    const infoCards = document.querySelectorAll(".info-card");
-    infoCards.forEach((card) => {
-      card.addEventListener("mouseenter", () => {
-        anime({
-          targets: card,
-          scale: 1.05,
-          translateY: -8,
-          duration: 400,
-          easing: "easeOutQuad",
-        });
+    if (mainBoxRef.current) {
+      gsap.set(mainBoxRef.current, { opacity: 0, y: 100, scale: 0.8 });
+      gsap.to(mainBoxRef.current, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.5,
+        ease: 'elastic.out(1, 0.8)',
+        scrollTrigger: {
+          trigger: mainBoxRef.current,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse'
+        }
       });
+    }
 
-      card.addEventListener("mouseleave", () => {
-        anime({
-          targets: card,
-          scale: 1,
-          translateY: 0,
-          duration: 400,
-          easing: "easeOutQuad",
-        });
+    const quickFacts = sectionRef.current?.querySelectorAll(".quick-fact");
+    if (quickFacts) {
+      gsap.set(quickFacts, { opacity: 0, y: 60, scale: 0.7 });
+      gsap.to(quickFacts, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'elastic.out(1, 0.5)',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse'
+        }
       });
-    });
+    }
 
-    const toolItems = document.querySelectorAll(".tool-item");
-    toolItems.forEach((item) => {
-      item.addEventListener("mouseenter", () => {
-        anime({
-          targets: item,
-          scale: 1.2,
-          rotate: 10,
-          duration: 300,
-          easing: "easeOutElastic(1, .8)",
-        });
+    const infoCards = cardsRef.current?.querySelectorAll(".info-card");
+    if (infoCards) {
+      gsap.set(infoCards, { opacity: 0, y: 80, scale: 0.9 });
+      gsap.to(infoCards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.0,
+        stagger: 0.2,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: cardsRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
+        }
       });
+    }
 
-      item.addEventListener("mouseleave", () => {
-        anime({
-          targets: item,
-          scale: 1,
-          rotate: 0,
-          duration: 300,
-          easing: "easeOutQuad",
-        });
+    const stackBars = sectionRef.current?.querySelectorAll(".stack-bar");
+    if (stackBars) {
+      gsap.set(stackBars, { opacity: 0, x: -50, width: '0%' });
+      gsap.to(stackBars, {
+        opacity: 1,
+        x: 0,
+        width: function() {
+          return this.getAttribute("data-width") + "%";
+        },
+        duration: 1.0,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 60%',
+          toggleActions: 'play none none reverse'
+        }
       });
-    });
+    }
 
-    const toolChips = sectionRef.current?.querySelectorAll(".tool-chip");
-    toolChips?.forEach((chip) => {
-      chip.addEventListener("mouseenter", () => {
-        anime({
-          targets: chip,
-          scale: 1.1,
-          duration: 300,
-          easing: "easeOutQuad",
-        });
+    const toolItems = sectionRef.current?.querySelectorAll(".tool-item");
+    if (toolItems) {
+      gsap.set(toolItems, { opacity: 0, scale: 0.3, rotation: -180 });
+      gsap.to(toolItems, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'elastic.out(1, 0.8)',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 50%',
+          toggleActions: 'play none none reverse'
+        }
       });
-
-      chip.addEventListener("mouseleave", () => {
-        anime({
-          targets: chip,
-          scale: 1,
-          duration: 300,
-          easing: "easeOutQuad",
-        });
-      });
-    });
+    }
 
     return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", handleScroll);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 

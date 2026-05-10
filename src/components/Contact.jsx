@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import anime from 'animejs';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   FaPaperPlane,
   FaCheckCircle,
@@ -11,6 +12,8 @@ import {
   FaLinkedin,
   FaClock,
 } from "react-icons/fa";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const contactItems = [
   {
@@ -60,206 +63,136 @@ export default function Contact() {
   });
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
-  /* Enhanced anime.js Animations for Contact section */
+  /* GSAP ScrollTrigger Animations for Contact section */
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // Dramatic section header reveal
-          const revealElements = sectionRef.current?.querySelectorAll(".reveal");
-          if (revealElements) {
-            anime({
-              targets: revealElements,
-              opacity: [0, 1],
-              translateY: [80, 0],
-              duration: 1200,
-              delay: anime.stagger(150),
-              easing: 'easeOutExpo'
-            });
-          }
-
-          // Contact info cards with 3D effect
-          const contactCards = leftRef.current?.querySelectorAll(".contact-info-card");
-          if (contactCards) {
-            anime({
-              targets: contactCards,
-              opacity: [0, 1],
-              translateX: [-60, 0],
-              scale: [0.8, 1],
-              duration: 1000,
-              delay: anime.stagger(150, {start: 600}),
-              easing: 'easeOutElastic(1, .8)'
-            });
-          }
-
-          // Form card with flip animation
-          const formCard = sectionRef.current?.querySelector(".contact-form-card");
-          if (formCard) {
-            anime({
-              targets: formCard,
-              opacity: [0, 1],
-              translateY: [100, 0],
-              scale: [0.9, 1],
-              duration: 1300,
-              delay: 1000,
-              easing: 'easeOutExpo'
-            });
-          }
-
-          // Form fields with staggered entrance
-          anime({
-            targets: ".form-field",
-            opacity: [0, 1],
-            translateY: [40, 0],
-            translateX: [-20, 0],
-            duration: 800,
-            delay: anime.stagger(100, {start: 1400}),
-            easing: 'easeOutExpo'
-          });
-
-          // Submit button with elastic effect
-          anime({
-            targets: ".submit-btn",
-            opacity: [0, 1],
-            scale: [0.5, 1],
-            rotate: [-180, 0],
-            duration: 1000,
-            delay: 1800,
-            easing: 'easeOutElastic(1, .5)'
-          });
-
-          observer.unobserve(entry.target);
+    // Dramatic section header reveal
+    const revealElements = sectionRef.current?.querySelectorAll(".reveal");
+    if (revealElements) {
+      gsap.set(revealElements, { opacity: 0, y: 80 });
+      gsap.to(revealElements, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
         }
       });
-    }, { threshold: 0.2 });
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
     }
 
-    // Enhanced contact card hover effects
-    const contactCards = sectionRef.current?.querySelectorAll(".contact-info-card");
-    contactCards?.forEach((card) => {
-      card.addEventListener("mouseenter", () => {
-        anime({
-          targets: card,
-          scale: 1.08,
-          translateX: 10,
-          translateY: -5,
-          duration: 400,
-          easing: 'easeOutQuad'
-        });
-        
-        anime({
-          targets: card,
-          boxShadow: ["0 4px 20px rgba(0, 0, 0, 0.1)", "0 10px 30px rgba(0, 212, 255, 0.3)"],
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
+    // Contact info cards with 3D effect
+    const contactCards = leftRef.current?.querySelectorAll(".contact-info-card");
+    if (contactCards) {
+      gsap.set(contactCards, { opacity: 0, x: -60, scale: 0.8 });
+      gsap.to(contactCards, {
+        opacity: 1,
+        x: 0,
+        scale: 1,
+        duration: 1.0,
+        stagger: 0.15,
+        ease: 'elastic.out(1, 0.8)',
+        scrollTrigger: {
+          trigger: leftRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse'
+        }
       });
-      
-      card.addEventListener("mouseleave", () => {
-        anime({
-          targets: card,
-          scale: 1,
-          translateX: 0,
-          translateY: 0,
-          duration: 400,
-          easing: 'easeOutQuad'
-        });
-        
-        anime({
-          targets: card,
-          boxShadow: ["0 10px 30px rgba(0, 212, 255, 0.3)", "0 4px 20px rgba(0, 0, 0, 0.1)"],
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
-      });
-    });
+    }
 
-    // Form field focus animations
-    const formFields = document.querySelectorAll('.form-field input, .form-field textarea');
-    formFields.forEach(field => {
-      field.addEventListener('focus', () => {
-        anime({
-          targets: field.parentElement,
-          scale: 1.02,
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
-        
-        anime({
-          targets: field,
-          boxShadow: ['0 0 0 0px rgba(0, 212, 255, 0)', '0 0 0 3px rgba(0, 212, 255, 0.3)'],
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
+    // Form card with flip animation
+    const formCard = sectionRef.current?.querySelector(".contact-form-card");
+    if (formCard) {
+      gsap.set(formCard, { opacity: 0, y: 100, scale: 0.9 });
+      gsap.to(formCard, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.3,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 60%',
+          toggleActions: 'play none none reverse'
+        }
       });
-      
-      field.addEventListener('blur', () => {
-        anime({
-          targets: field.parentElement,
-          scale: 1,
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
-        
-        anime({
-          targets: field,
-          boxShadow: ['0 0 0 3px rgba(0, 212, 255, 0.3)', '0 0 0 0px rgba(0, 212, 255, 0)'],
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
-      });
-    });
+    }
 
-    // Submit button hover effect
-    const submitBtn = document.querySelector('.submit-btn');
+    // Form fields with staggered entrance
+    const formFields = sectionRef.current?.querySelectorAll(".form-field");
+    if (formFields) {
+      gsap.set(formFields, { opacity: 0, y: 40, x: -20 });
+      gsap.to(formFields, {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 50%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+    }
+
+    // Submit button with elastic effect
+    const submitBtn = sectionRef.current?.querySelector(".submit-btn");
     if (submitBtn) {
-      submitBtn.addEventListener('mouseenter', () => {
-        anime({
-          targets: submitBtn,
-          scale: 1.05,
-          rotate: 2,
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
-      });
-      
-      submitBtn.addEventListener('mouseleave', () => {
-        anime({
-          targets: submitBtn,
-          scale: 1,
-          rotate: 0,
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
+      gsap.set(submitBtn, { opacity: 0, scale: 0.5, rotation: -180 });
+      gsap.to(submitBtn, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: 1.0,
+        ease: 'elastic.out(1, 0.5)',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 40%',
+          toggleActions: 'play none none reverse'
+        }
       });
     }
 
-    // Form submission animation
-    const form = document.querySelector('.contact-form');
-    if (form) {
-      form.addEventListener('submit', () => {
-        anime({
-          targets: submitBtn,
-          scale: 0.95,
-          duration: 200,
-          easing: 'easeOutQuad'
+    // Contact card hover effects
+    const contactCardsHover = sectionRef.current?.querySelectorAll(".contact-info-card");
+    contactCardsHover?.forEach((card) => {
+      card.addEventListener("mouseenter", () => {
+        gsap.to(card, {
+          scale: 1.08,
+          x: 10,
+          y: -5,
+          duration: 0.4,
+          ease: 'power2.out'
         });
-        
-        anime({
-          targets: submitBtn,
-          rotate: 360,
-          duration: 1000,
-          easing: 'easeInOutQuad',
-          loop: true
+        gsap.to(card, {
+          boxShadow: "0 10px 30px rgba(0, 212, 255, 0.3)",
+          duration: 0.3,
+          ease: 'power2.out'
         });
       });
-    }
+
+      card.addEventListener("mouseleave", () => {
+        gsap.to(card, {
+          scale: 1,
+          x: 0,
+          y: 0,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+        gsap.to(card, {
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      });
+    });
 
     return () => {
-      observer.disconnect();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
@@ -269,22 +202,21 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
-      // Shake animation with anime.js
-      anime({
-        targets: formRef.current,
-        translateX: [-10, 10, -8, 8, -4, 4, 0],
-        duration: 450,
-        easing: 'easeInOutQuad'
+      // Shake animation with GSAP
+      gsap.to(formRef.current, {
+        x: [-10, 10, -8, 8, -4, 4, 0],
+        duration: 0.45,
+        ease: 'power2.inOut'
       });
       return;
     }
     setStatus("sending");
     try {
       const emailjs = (await import("@emailjs/browser")).default;
-      
+
       // Initialize EmailJS with public key from environment
       emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
-      
+
       await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
@@ -297,18 +229,17 @@ export default function Contact() {
           to_email: process.env.NEXT_PUBLIC_EMAILJS_TO_EMAIL
         }
       );
-      
+
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
-      
-      // Success animation with anime.js
-      anime({
-        targets: formRef.current,
+
+      // Success animation with GSAP
+      gsap.to(formRef.current, {
         scale: [1, 1.02, 1],
-        duration: 500,
-        easing: 'easeOutQuad'
+        duration: 0.5,
+        ease: 'power2.out'
       });
-      
+
       setTimeout(() => setStatus("idle"), 5000);
     } catch (error) {
       console.error("Email sending failed:", error);
@@ -553,7 +484,7 @@ export default function Contact() {
                     key={item.label}
                     {...linkProps}
                     className="contact-info-card"
-                    style={{ opacity: 0 }} /* anime will animate from 0 */
+                    style={{ opacity: 0 }} /* GSAP animates from 0 */
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = `rgba(${item.accentRgb},0.07)`;
                       e.currentTarget.style.borderColor = `rgba(${item.accentRgb},0.25)`;

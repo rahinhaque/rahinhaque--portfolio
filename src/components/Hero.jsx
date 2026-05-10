@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -17,230 +17,117 @@ export default function Hero() {
   const statsRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  /* ── Three.js Advanced Scene ───────────────────────── */
+  /* ── Three.js Simple Scene ───────────────────────── */
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-    });
-    
-    const pixelRatio = Math.min(window.devicePixelRatio, 2);
-    renderer.setPixelRatio(pixelRatio);
-    renderer.setSize(container.offsetWidth, container.offsetHeight);
-    renderer.setClearColor(0x000000, 0);
-
-    const scene = new THREE.Scene();
-
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      container.offsetWidth / container.offsetHeight,
-      0.1,
-      1000
-    );
-    camera.position.z = 50;
-
-    // ── Particle System (enhanced from ThreeBackground) ──
-    const particleCount = 800;
-    const particlePositions = new Float32Array(particleCount * 3);
-    const particleColors = new Float32Array(particleCount * 3);
-    const particleSizes = new Float32Array(particleCount);
-
-    const colorPalette = [
-      new THREE.Color(0x00d4ff), // cyan
-      new THREE.Color(0x8b5cf6), // purple
-      new THREE.Color(0x10b981), // green
-      new THREE.Color(0xf59e0b), // orange
-    ];
-
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
+    // Wait for container to have dimensions
+    const initThree = () => {
+      const width = container.offsetWidth || container.clientWidth;
+      const height = container.offsetHeight || container.clientHeight;
       
-      // Create a more distributed spherical particle field
-      const radius = Math.random() * 100 + 20;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.random() * Math.PI;
-      
-      particlePositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-      particlePositions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-      particlePositions[i3 + 2] = radius * Math.cos(phi);
-
-      const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-      particleColors[i3] = color.r;
-      particleColors[i3 + 1] = color.g;
-      particleColors[i3 + 2] = color.b;
-
-      particleSizes[i] = Math.random() * 2 + 0.5;
-    }
-
-    const particleGeometry = new THREE.BufferGeometry();
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
-    particleGeometry.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
-
-    const particleMaterial = new THREE.PointsMaterial({
-      size: 1,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true,
-    });
-
-    const particles = new THREE.Points(particleGeometry, particleMaterial);
-    scene.add(particles);
-
-    // ── Floating Geometric Shapes ──
-    const shapes = [];
-    const shapeGeometries = [
-      new THREE.IcosahedronGeometry(3, 0),
-      new THREE.OctahedronGeometry(2.5, 0),
-      new THREE.TetrahedronGeometry(2, 0),
-      new THREE.DodecahedronGeometry(2, 0),
-    ];
-
-    const shapeMaterials = [
-      new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.3 }),
-      new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true, transparent: true, opacity: 0.3 }),
-      new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.3 }),
-      new THREE.MeshBasicMaterial({ color: 0xf59e0b, wireframe: true, transparent: true, opacity: 0.3 }),
-    ];
-
-    for (let i = 0; i < 8; i++) {
-      const geometry = shapeGeometries[Math.floor(Math.random() * shapeGeometries.length)];
-      const material = shapeMaterials[Math.floor(Math.random() * shapeMaterials.length)];
-      const mesh = new THREE.Mesh(geometry, material);
-
-      mesh.position.set(
-        (Math.random() - 0.5) * 100,
-        (Math.random() - 0.5) * 100,
-        (Math.random() - 0.5) * 80
-      );
-
-      mesh.rotation.set(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
-      );
-
-      mesh.userData = {
-        rotationSpeed: {
-          x: (Math.random() - 0.5) * 0.01,
-          y: (Math.random() - 0.5) * 0.01,
-        },
-        floatSpeed: Math.random() * 0.5 + 0.5,
-        floatOffset: Math.random() * Math.PI * 2,
-        originalY: mesh.position.y,
-      };
-
-      shapes.push(mesh);
-      scene.add(mesh);
-    }
-
-    // ── Connecting Lines (dynamic) ──
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0xa855f7,
-      transparent: true,
-      opacity: 0.06,
-      blending: THREE.AdditiveBlending,
-    });
-
-    const lineGeometry = new THREE.BufferGeometry();
-    const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-    scene.add(lines);
-
-    // ── Mouse interaction ──
-    let targetMouseX = 0, targetMouseY = 0;
-    const onMouseMove = (e) => {
-      targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-      setMousePos({ x: targetMouseX, y: targetMouseY });
-    };
-    window.addEventListener('mousemove', onMouseMove);
-
-    // ── Resize handler ──
-    const onResize = () => {
-      if (!container.offsetWidth) return;
-      camera.aspect = container.offsetWidth / container.offsetHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.offsetWidth, container.offsetHeight);
-    };
-    window.addEventListener('resize', onResize);
-
-    // ── Animation loop ──
-    let animId;
-    const clock = new THREE.Clock();
-
-    const tick = () => {
-      animId = requestAnimationFrame(tick);
-      const elapsed = clock.getElapsedTime();
-      const time = Date.now() * 0.0005;
-
-      // Smooth camera movement
-      camera.position.x += (targetMouseX * 8 - camera.position.x) * 0.03;
-      camera.position.y += (-targetMouseY * 5 - camera.position.y) * 0.03;
-      camera.lookAt(scene.position);
-
-      // Rotate particles with enhanced rotation from ThreeBackground
-      particles.rotation.x = time * 0.1;
-      particles.rotation.y = time * 0.15;
-
-      // Animate shapes with enhanced floating motion
-      shapes.forEach((shape, index) => {
-        shape.rotation.x += 0.01 * (index % 2 === 0 ? 1 : -1);
-        shape.rotation.y += 0.015 * (index % 2 === 0 ? -1 : 1);
-        
-        // Enhanced floating motion
-        shape.position.y += Math.sin(time + index) * 0.02;
-        shape.position.x += Math.cos(time + index) * 0.01;
-      });
-
-      // Update lines between close particles
-      const positions = particleGeometry.attributes.position.array;
-      const linePositions = [];
-      const maxDist = 25;
-
-      for (let i = 0; i < particleCount; i++) {
-        for (let j = i + 1; j < particleCount; j++) {
-          const dx = positions[i * 3] - positions[j * 3];
-          const dy = positions[i * 3 + 1] - positions[j * 3 + 1];
-          const dz = positions[i * 3 + 2] - positions[j * 3 + 2];
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-          if (dist < maxDist) {
-            linePositions.push(
-              positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2],
-              positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]
-            );
-          }
-        }
+      if (width === 0 || height === 0) {
+        // Retry after a short delay if container has no dimensions yet
+        setTimeout(initThree, 100);
+        return;
       }
 
-      lineGeometry.setAttribute(
-        'position',
-        new THREE.BufferAttribute(new Float32Array(linePositions), 3)
-      );
-      lines.rotation.copy(particles.rotation);
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: false,
+      });
 
-      renderer.render(scene, camera);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(width, height);
+      renderer.setClearColor(0x000000, 0);
+
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        width / height,
+        0.1,
+        1000
+      );
+      camera.position.z = 30;
+
+      // Simple particle system
+      const particleCount = 150;
+      const particlePositions = new Float32Array(particleCount * 3);
+
+      for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+        particlePositions[i3] = (Math.random() - 0.5) * 60;
+        particlePositions[i3 + 1] = (Math.random() - 0.5) * 60;
+        particlePositions[i3 + 2] = (Math.random() - 0.5) * 60;
+      }
+
+      const particleGeometry = new THREE.BufferGeometry();
+      particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+      const particleMaterial = new THREE.PointsMaterial({
+        size: 0.15,
+        color: 0x00d4ff,
+        transparent: true,
+        opacity: 0.7,
+      });
+
+      const particles = new THREE.Points(particleGeometry, particleMaterial);
+      scene.add(particles);
+
+      // Mouse interaction
+      const onMouseMove = (e) => {
+        setMousePos({ x: e.clientX, y: e.clientY });
+      };
+
+      const onResize = () => {
+        const w = container.offsetWidth || container.clientWidth;
+        const h = container.offsetHeight || container.clientHeight;
+        if (w === 0 || h === 0) return;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('resize', onResize);
+
+      // Animation loop
+      let animId;
+      const tick = () => {
+        particles.rotation.x += 0.0003;
+        particles.rotation.y += 0.0005;
+
+        const time = Date.now() * 0.0001;
+        particles.position.y = Math.sin(time) * 2;
+
+        renderer.render(scene, camera);
+        animId = requestAnimationFrame(tick);
+      };
+      tick();
+
+      return () => {
+        cancelAnimationFrame(animId);
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('resize', onResize);
+        renderer.dispose();
+        particleGeometry.dispose();
+        particleMaterial.dispose();
+      };
     };
-    tick();
+
+    // Start initialization and store cleanup
+    let cleanupFn;
+    const initAndStore = () => {
+      cleanupFn = initThree();
+    };
+    initAndStore();
 
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('resize', onResize);
-      renderer.dispose();
-      particleGeometry.dispose();
-      particleMaterial.dispose();
-      lineGeometry.dispose();
-      lineMaterial.dispose();
-      shapeGeometries.forEach((g) => g.dispose());
-      shapeMaterials.forEach((m) => m.dispose());
+      if (cleanupFn) cleanupFn();
     };
   }, []);
 
@@ -272,18 +159,17 @@ export default function Hero() {
       }, '-=0.3');
     }
 
-    // Headline words with staggered reveal
+    // Headline characters with typewriter effect
     if (headlineRef.current) {
-      const words = headlineRef.current.querySelectorAll('.word');
-      if (words.length > 0) {
-        gsap.set(words, { y: 60 });
-        tl.to(words, {
+      const chars = headlineRef.current.querySelectorAll('.char');
+      if (chars.length > 0) {
+        gsap.set(chars, { opacity: 0 });
+        tl.to(chars, {
           opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power2.out'
-        }, '-=0.5');
+          duration: 0.08,
+          stagger: 0.08,
+          ease: 'power1.out'
+        }, '-=0.3');
       }
     }
 
@@ -361,6 +247,11 @@ export default function Hero() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
+    // Play the timeline with a small delay to ensure elements are ready
+    setTimeout(() => {
+      tl.play();
+    }, 100);
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       gsap.killTweensOf(tagRef.current);
@@ -373,7 +264,41 @@ export default function Hero() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   const headline = 'MERN Stack Developer.';
-  const words = headline.split(' ');
+  const chars = headline.split('');
+  const [showCursor, setShowCursor] = useState(true);
+  const [visibleChars, setVisibleChars] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Typewriter effect with loop
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isDeleting) {
+        if (visibleChars < chars.length) {
+          setVisibleChars(prev => prev + 1);
+        } else {
+          // Wait before deleting
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        if (visibleChars > 0) {
+          setVisibleChars(prev => prev - 1);
+        } else {
+          // Start typing again
+          setIsDeleting(false);
+        }
+      }
+    }, isDeleting ? 50 : 80);
+
+    return () => clearTimeout(timer);
+  }, [visibleChars, isDeleting, chars.length]);
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section
@@ -599,35 +524,45 @@ export default function Hero() {
               Haque
             </h1>
 
-            {/* Animated role headline */}
+            {/* Animated role headline with typewriter effect */}
             <div
               ref={headlineRef}
               style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '12px',
                 alignItems: 'baseline',
                 marginBottom: '28px',
                 fontSize: 'clamp(24px, 4vw, 40px)',
                 fontWeight: 800,
               }}
             >
-              {words.map((w, i) => (
+              {chars.map((char, i) => (
                 <span
                   key={i}
-                  className="word"
+                  className="char"
                   style={{
-                    opacity: 0,
-                    color: i === 0 ? '#f8fafc' : 'transparent',
-                    background: i >= 1 ? 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 50%, var(--accent-pink) 100%)' : 'none',
-                    WebkitBackgroundClip: i >= 1 ? 'text' : 'unset',
-                    WebkitTextFillColor: i >= 1 ? 'transparent' : '#f8fafc',
-                    backgroundClip: i >= 1 ? 'text' : 'unset',
+                    opacity: i < visibleChars ? 1 : 0,
+                    color: char === ' ' ? 'transparent' : '#f8fafc',
+                    background: char !== ' ' ? 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 50%, var(--accent-pink) 100%)' : 'none',
+                    WebkitBackgroundClip: char !== ' ' ? 'text' : 'unset',
+                    WebkitTextFillColor: char !== ' ' ? 'transparent' : '#f8fafc',
+                    backgroundClip: char !== ' ' ? 'text' : 'unset',
+                    transition: 'opacity 0.05s ease',
                   }}
                 >
-                  {w}
+                  {char}
                 </span>
               ))}
+              <span
+                style={{
+                  opacity: showCursor ? 1 : 0,
+                  color: 'var(--accent-cyan)',
+                  marginLeft: '4px',
+                  transition: 'opacity 0.1s ease',
+                }}
+              >
+                |
+              </span>
             </div>
 
             {/* Subtitle */}
@@ -692,8 +627,8 @@ export default function Hero() {
                 { value: '3+', label: 'Years Learning' },
                 { value: '100%', label: 'Passion Driven' },
               ].map((stat, i) => (
-                <>
-                  <div key={stat.label} className="stat-item" style={{ opacity: 0 }}>
+                <React.Fragment key={stat.label}>
+                  <div className="stat-item" style={{ opacity: 0 }}>
                     <div
                       style={{
                         fontSize: 'clamp(24px, 3vw, 34px)',
@@ -723,7 +658,7 @@ export default function Hero() {
                   {i < 2 && (
                     <div className="stat-divider stat-item" style={{ opacity: 0 }} />
                   )}
-                </>
+                </React.Fragment>
               ))}
             </div>
           </div>

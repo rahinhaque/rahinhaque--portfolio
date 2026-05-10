@@ -2,6 +2,10 @@
 @import "tailwindcss";
 @import "animate.css/animate.min.css";
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* ═══════════════════════════════════════════════════════════ */
 /* DESIGN TOKENS — v2.0 Redesign                               */
 /* ═══════════════════════════════════════════════════════════ */

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import anime from 'animejs';
+import gsap from 'gsap';
 
 const navLinks = [
   { label: 'Home', href: 'home' },
@@ -15,12 +15,17 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const navRef = useRef(null);
   const magneticBtnsRef = useRef([]);
 
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 50);
+
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
+      setScrollProgress(progress);
 
       const sections = navLinks.map((l) => l.href);
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -40,7 +45,7 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
-  // Magnetic button effect with anime.js
+  // Magnetic button effect with GSAP
   useEffect(() => {
     const buttons = navRef.current?.querySelectorAll('.magnetic-btn');
     if (!buttons) return;
@@ -50,23 +55,21 @@ export default function Navbar() {
         const rect = btn.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
-        
-        anime({
-          targets: btn,
-          translateX: x * 0.3,
-          translateY: y * 0.3,
-          duration: 300,
-          easing: 'easeOutQuad'
+
+        gsap.to(btn, {
+          x: x * 0.3,
+          y: y * 0.3,
+          duration: 0.3,
+          ease: 'power2.out'
         });
       });
 
       btn.addEventListener('mouseleave', () => {
-        anime({
-          targets: btn,
-          translateX: 0,
-          translateY: 0,
-          duration: 500,
-          easing: 'easeOutElastic(1, .5)'
+        gsap.to(btn, {
+          x: 0,
+          y: 0,
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.5)'
         });
       });
     });
@@ -107,10 +110,10 @@ export default function Navbar() {
         }`}
       >
         {/* Progress bar */}
-        <div 
+        <div
           className="absolute top-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 z-50 transition-all duration-100"
-          style={{ 
-            width: `${(typeof window !== 'undefined' ? (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100 : 0)}%`,
+          style={{
+            width: `${scrollProgress}%`,
             boxShadow: '0 0 10px var(--accent-cyan), 0 0 20px var(--accent-purple)'
           }}
         />

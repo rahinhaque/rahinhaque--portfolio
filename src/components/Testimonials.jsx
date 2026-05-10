@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import anime from 'animejs';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FaQuoteLeft, FaStar, FaLinkedin, FaGithub } from "react-icons/fa";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const testimonials = [
   {
@@ -64,64 +67,81 @@ export default function Testimonials() {
   const trackRef = useRef(null);
   const cardsRef = useRef(null);
 
-  /* Enhanced anime.js Animations for Testimonials section */
+  /* GSAP ScrollTrigger Animations for Testimonials section */
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // Dramatic section header reveal
-          const revealElements = sectionRef.current?.querySelectorAll(".reveal");
-          if (revealElements) {
-            anime({
-              targets: revealElements,
-              opacity: [0, 1],
-              translateY: [80, 0],
-              duration: 1200,
-              delay: anime.stagger(150),
-              easing: 'easeOutExpo'
-            });
-          }
-
-          // Testimonial cards with 3D cascade effect
-          anime({
-            targets: ".testimonial-card",
-            opacity: [0, 1],
-            translateY: [100, 0],
-            scale: [0.8, 1],
-            duration: 1500,
-            delay: anime.stagger(200, {start: 600}),
-            easing: 'easeOutElastic(1, .8)'
-          });
-
-          // Rating stars with sparkle effect
-          anime({
-            targets: ".rating-star",
-            opacity: [0, 1],
-            scale: [0, 1],
-            rotate: [-180, 0],
-            duration: 600,
-            delay: anime.stagger(50, {start: 1200}),
-            easing: 'easeOutElastic(1, .5)'
-          });
-
-          // Avatar circles with rotation effect
-          anime({
-            targets: ".testimonial-avatar",
-            opacity: [0, 1],
-            scale: [0.5, 1],
-            rotate: [-360, 0],
-            duration: 800,
-            delay: anime.stagger(100, {start: 1000}),
-            easing: 'easeOutElastic(1, .8)'
-          });
-
-          observer.unobserve(entry.target);
+    // Dramatic section header reveal
+    const revealElements = sectionRef.current?.querySelectorAll(".reveal");
+    if (revealElements) {
+      gsap.set(revealElements, { opacity: 0, y: 80 });
+      gsap.to(revealElements, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
         }
       });
-    }, { threshold: 0.2 });
+    }
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    // Testimonial cards with 3D cascade effect
+    const testimonialCards = sectionRef.current?.querySelectorAll(".testimonial-card");
+    if (testimonialCards) {
+      gsap.set(testimonialCards, { opacity: 0, y: 100, scale: 0.8 });
+      gsap.to(testimonialCards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.5,
+        stagger: 0.2,
+        ease: 'elastic.out(1, 0.8)',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+    }
+
+    // Rating stars with sparkle effect
+    const ratingStars = sectionRef.current?.querySelectorAll(".rating-star");
+    if (ratingStars) {
+      gsap.set(ratingStars, { opacity: 0, scale: 0, rotation: -180 });
+      gsap.to(ratingStars, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: 0.6,
+        stagger: 0.05,
+        ease: 'elastic.out(1, 0.5)',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 60%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+    }
+
+    // Avatar circles with rotation effect
+    const avatars = sectionRef.current?.querySelectorAll(".testimonial-avatar");
+    if (avatars) {
+      gsap.set(avatars, { opacity: 0, scale: 0.5, rotation: -360 });
+      gsap.to(avatars, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'elastic.out(1, 0.8)',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 65%',
+          toggleActions: 'play none none reverse'
+        }
+      });
     }
 
     // Auto-scroll animation for testimonials
@@ -129,90 +149,66 @@ export default function Testimonials() {
     if (cards.length > 3) {
       const track = trackRef.current;
       const cardWidth = 350;
-      
-      // Create infinite scroll effect with anime.js
-      anime({
-        targets: track,
-        translateX: [0, -cardWidth * cards.length],
-        duration: cards.length * 3000,
-        easing: 'linear',
-        loop: true
+
+      // Create infinite scroll effect with GSAP
+      gsap.to(track, {
+        x: -cardWidth * cards.length,
+        duration: cards.length * 3,
+        ease: 'none',
+        repeat: -1
       });
 
       // Pause on hover
       cards.forEach(card => {
         card.addEventListener('mouseenter', () => {
-          anime.remove(track);
+          gsap.killTweensOf(track);
         });
-        
+
         card.addEventListener('mouseleave', () => {
-          anime({
-            targets: track,
-            translateX: [0, -cardWidth * cards.length],
-            duration: cards.length * 3000,
-            easing: 'linear',
-            loop: true
+          gsap.to(track, {
+            x: -cardWidth * cards.length,
+            duration: cards.length * 3,
+            ease: 'none',
+            repeat: -1
           });
         });
       });
     }
 
-    // Enhanced hover effects for testimonial cards
-    const testimonialCards = document.querySelectorAll('.testimonial-card');
-    testimonialCards.forEach(card => {
+    // Card hover effects
+    const cardsAll = document.querySelectorAll('.testimonial-card');
+    cardsAll.forEach(card => {
       card.addEventListener('mouseenter', () => {
-        anime({
-          targets: card,
+        gsap.to(card, {
           scale: 1.05,
-          translateY: -10,
-          duration: 400,
-          easing: 'easeOutQuad'
+          y: -8,
+          duration: 0.4,
+          ease: 'power2.out'
         });
-        
-        anime({
-          targets: card,
-          boxShadow: ['0 10px 30px rgba(0, 0, 0, 0.1)', '0 20px 40px rgba(0, 212, 255, 0.2)'],
-          duration: 300,
-          easing: 'easeOutQuad'
+        gsap.to(card, {
+          boxShadow: '0 12px 40px rgba(0, 212, 255, 0.3)',
+          duration: 0.3,
+          ease: 'power2.out'
         });
       });
-      
+
       card.addEventListener('mouseleave', () => {
-        anime({
-          targets: card,
+        gsap.to(card, {
           scale: 1,
-          translateY: 0,
-          duration: 400,
-          easing: 'easeOutQuad'
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out'
         });
-        
-        anime({
-          targets: card,
-          boxShadow: ['0 20px 40px rgba(0, 212, 255, 0.2)', '0 10px 30px rgba(0, 0, 0, 0.1)'],
-          duration: 300,
-          easing: 'easeOutQuad'
+        gsap.to(card, {
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+          duration: 0.3,
+          ease: 'power2.out'
         });
       });
     });
 
-    // Parallax effect for section background
-    const handleScroll = () => {
-      const scrollY = window.pageYOffset;
-      const progress = Math.min(scrollY / 500, 1);
-      
-      anime({
-        targets: '.testimonial-bg',
-        translateY: progress * 50,
-        duration: 0,
-        easing: 'linear'
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
     return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', handleScroll);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
@@ -370,15 +366,7 @@ export default function Testimonials() {
 
         /* responsive design */
         @media (max-width: 767px) {
-          .testimonial-track {
-            flex-direction: column;
-            align-items: center;
-          }
-          
-          .testimonial-card {
-            flex: 1 1 100%;
-            max-width: 350px;
-          }
+          display: none;
         }
       `}</style>
 
