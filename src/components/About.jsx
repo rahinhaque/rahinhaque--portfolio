@@ -384,7 +384,7 @@ export default function About() {
             style={{ textAlign: "center", margin: "0 auto", maxWidth: "500px" }}
           >
             I&apos;m currently pursuing a Bachelor&apos;s degree in Political
-            Science while actively building my path as a Junior Frontend
+            Science while actively building my path as a Junior Mern stack
             Developer.
           </p>
         </div>

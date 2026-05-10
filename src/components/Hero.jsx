@@ -578,7 +578,7 @@ export default function Hero() {
                 maxWidth: '540px',
               }}
             >
-              I'm a Junior Frontend Developer building clean, functional
+              I'm a Mern stack Developer building clean, functional
               web interfaces &mdash; at the intersection of{' '}
               <span style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>technology</span>,{' '}
               <span style={{ color: 'var(--accent-purple)', fontWeight: 600 }}>logic</span>, and{' '}
@@ -624,7 +624,7 @@ export default function Hero() {
             >
               {[
                 { value: '5+', label: 'Projects Built' },
-                { value: '3+', label: 'Years Learning' },
+                { value: '2+', label: 'Years Learning' },
                 { value: '100%', label: 'Passion Driven' },
               ].map((stat, i) => (
                 <React.Fragment key={stat.label}>
