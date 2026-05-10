@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import anime from 'animejs';
 import {
   FaTrophy,
@@ -9,101 +11,18 @@ import {
   FaBook,
   FaStore,
   FaCode,
+  FaArrowRight,
 } from "react-icons/fa";
+import { projects } from "@/data/projects";
 
-const projects = [
-  {
-    id: 1,
-    title: "BPL-11",
-    tagline: "Cricket Tournament Tracker",
-    description:
-      "A dynamic web application to track matches, player statistics, and team standings for the Bangladesh Premier League.",
-    tech: ["JavaScript", "DOM Manipulation", "CSS3"],
-    highlights: ["Dynamic DOM Updates", "Interactive Data", "Clean Layout"],
-    github: "https://github.com/rahinhaque/BPL-11",
-    live: null,
-    icon: <FaTrophy size={22} />,
-    accent: "#f59e0b",
-    accentRgb: "245,158,11",
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "World On The Go",
-    tagline: "Travel & Tour Management",
-    description:
-      "A beautifully designed travel agency website showcasing various tour packages, destinations, and a booking inquiry system.",
-    tech: ["HTML5", "CSS3", "JavaScript"],
-    highlights: ["CSS Animations", "Responsive Grid", "Modern UI"],
-    github: "https://github.com/rahinhaque/World-on-the-go",
-    live: null,
-    icon: <FaGlobe size={22} />,
-    accent: "#00d4ff",
-    accentRgb: "0,212,255",
-    featured: true,
-  },
-  {
-    id: 3,
-    title: "Dragon News",
-    tagline: "News Portal Application",
-    description:
-      "A comprehensive news portal featuring categorized news reading, user authentication, and a clean reading interface built with Next.js.",
-    tech: ["Next.js", "React", "Tailwind CSS", "Firebase"],
-    highlights: ["Server-Side Rendering", "Firebase Auth", "Dynamic Routing"],
-    github: "https://github.com/rahinhaque/dragon-news-next-project",
-    live: "https://dragon-news-next-project-lime.vercel.app/",
-    icon: <FaNewspaper size={22} />,
-    accent: "#ef4444",
-    accentRgb: "239,68,68",
-    featured: true,
-  },
-  {
-    id: 4,
-    title: "Book Vibe",
-    tagline: "Book Review Platform",
-    description:
-      "An interactive platform for book enthusiasts to discover, review, and track their favorite books with custom filtering and local storage.",
-    tech: ["React", "JavaScript ES6+", "CSS3", "Vite"],
-    highlights: ["Custom Filtering", "Local Storage Sync", "Responsive UI"],
-    github: "https://github.com/rahinhaque/Book-vibe.com",
-    live: null,
-    icon: <FaBook size={22} />,
-    accent: "#8b5cf6",
-    accentRgb: "139,92,246",
-    featured: false,
-  },
-  {
-    id: 5,
-    title: "QurbaniHat",
-    tagline: "Livestock Booking Platform",
-    description:
-      "A full-featured livestock booking platform for Eid-ul-Adha with secure authentication, dynamic animal listings, and user booking management.",
-    tech: ["Next.js 15", "MongoDB", "BetterAuth", "Tailwind CSS"],
-    highlights: ["Secure Authentication", "Full CRUD API", "Role-based Access"],
-    github:
-      "https://github.com/rahinhaque/QurbaniHat-Livestock-Booking-Platform",
-    live: "https://qurbani-hat-livestock-booking-platf-ten.vercel.app",
-    icon: <FaStore size={22} />,
-    accent: "#10b981",
-    accentRgb: "16,185,129",
-    featured: true,
-  },
-  {
-    id: 6,
-    title: "Exploring Next.js",
-    tagline: "Next.js Learning Playground",
-    description:
-      "A collection of experimental projects and components built while learning Next.js advanced features like App Router and Server Actions.",
-    tech: ["Next.js", "React", "Tailwind CSS"],
-    highlights: ["App Router", "Server Actions", "SSR / SSG"],
-    github: "https://github.com/rahinhaque/exploring-next.js",
-    live: null,
-    icon: <FaCode size={22} />,
-    accent: "#a855f7",
-    accentRgb: "168,85,247",
-    featured: false,
-  },
-];
+const iconMap = {
+  FaTrophy: <FaTrophy size={22} />,
+  FaGlobe: <FaGlobe size={22} />,
+  FaNewspaper: <FaNewspaper size={22} />,
+  FaBook: <FaBook size={22} />,
+  FaStore: <FaStore size={22} />,
+  FaCode: <FaCode size={22} />,
+};
 
 export default function Projects() {
   const sectionRef = useRef(null);
@@ -442,6 +361,11 @@ export default function Projects() {
         @media (max-width: 767px) { .projects-grid { grid-template-columns: 1fr; } }
         @media (min-width: 768px) and (max-width: 1023px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
 
+        /* project card image hover */
+        .project-card:hover .project-card-img {
+          transform: scale(1.08);
+        }
+
         /* github cta */
         .github-cta {
           display: inline-flex;
@@ -530,6 +454,28 @@ export default function Projects() {
                 }}
               />
 
+              {/* Project Image */}
+              <div
+                style={{
+                  width: "100%",
+                  height: "180px",
+                  position: "relative",
+                  overflow: "hidden",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  style={{
+                    objectFit: "cover",
+                    transition: "transform 0.5s ease",
+                  }}
+                  className="project-card-img"
+                />
+              </div>
+
               {/* Card header */}
               <div
                 className="card-header"
@@ -565,7 +511,7 @@ export default function Projects() {
                     marginBottom: "16px",
                   }}
                 >
-                  {project.icon}
+                  {iconMap[project.icon]}
                 </div>
 
                 <h3
@@ -626,7 +572,7 @@ export default function Projects() {
                     flexWrap: "wrap",
                     gap: "6px",
                     marginTop: "auto",
-                    marginBottom: "20px",
+                    marginBottom: "16px",
                     paddingTop: "16px",
                     borderTop: "1px solid rgba(255,255,255,0.05)",
                   }}
@@ -667,6 +613,41 @@ export default function Projects() {
                     <span className="card-link-disabled">In Progress</span>
                   )}
                 </div>
+
+                {/* View Details button */}
+                <Link
+                  href={`/project/${project.id}`}
+                  className="view-details-btn"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    marginTop: "12px",
+                    padding: "12px",
+                    borderRadius: "10px",
+                    border: `1px solid rgba(${project.accentRgb}, 0.25)`,
+                    background: `rgba(${project.accentRgb}, 0.05)`,
+                    color: project.accent,
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "14px",
+                    fontFamily: "'Outfit', sans-serif",
+                    transition: "all 0.25s ease",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `rgba(${project.accentRgb}, 0.12)`;
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = `rgba(${project.accentRgb}, 0.05)`;
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
+                >
+                  View Details
+                  <FaArrowRight size={14} />
+                </Link>
               </div>
             </article>
           ))}
