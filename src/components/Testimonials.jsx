@@ -216,7 +216,7 @@ export default function Testimonials() {
     <section
       id="testimonials"
       ref={sectionRef}
-      className="section-padding relative overflow-hidden"
+      className="section-padding relative overflow-hidden testimonial-section"
       style={{ background: "var(--bg-secondary)" }}
     >
       <style>{`
@@ -364,9 +364,11 @@ export default function Testimonials() {
           letter-spacing: 0.5px;
         }
 
-        /* responsive design */
+        /* responsive design - hide testimonials on mobile */
         @media (max-width: 767px) {
-          display: none;
+          .testimonial-section {
+            display: none;
+          }
         }
       `}</style>
 

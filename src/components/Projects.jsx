@@ -35,6 +35,60 @@ export default function Projects() {
 
   /* anime.js Animations for Projects section */
   useEffect(() => {
+    // Multiple attempts to ensure visibility on first load
+    const makeVisible = () => {
+      if (sectionRef.current) {
+        // Reveal immediately
+        const revealElements = sectionRef.current?.querySelectorAll(".reveal");
+        if (revealElements) {
+          revealElements.forEach(element => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+          });
+        }
+        
+        const filterButtons = sectionRef.current?.querySelectorAll('.filter-btn');
+        if (filterButtons) {
+          filterButtons.forEach(element => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+          });
+        }
+        
+        const githubCta = sectionRef.current?.querySelector('.github-cta');
+        if (githubCta) {
+          githubCta.style.opacity = '1';
+          githubCta.style.transform = 'translateY(0)';
+        }
+        
+        const cards = sectionRef.current?.querySelectorAll('.project-card');
+        if (cards) {
+          cards.forEach(element => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+          });
+        }
+      }
+    };
+
+    // Try immediately
+    makeVisible();
+    
+    // Try again after 100ms
+    const timer1 = setTimeout(makeVisible, 100);
+    
+    // Try again after 300ms
+    const timer2 = setTimeout(makeVisible, 300);
+
+    // Only use IntersectionObserver for desktop animations (for scroll effects)
+    const isMobile = window.innerWidth <= 767;
+    if (isMobile) {
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    }
+    
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -60,8 +114,8 @@ export default function Projects() {
               translateY: [20, 0],
               scale: [0.9, 1],
               duration: 600,
-              delay: anime.stagger(80, {start: 400}),
-              easing: 'easeOutElastic(1, .8)'
+              delay: anime.stagger(50),
+              easing: 'easeOutExpo'
             });
           }
 
@@ -74,28 +128,44 @@ export default function Projects() {
               translateY: [30, 0],
               scale: [0.95, 1],
               duration: 700,
-              delay: 600,
-              easing: 'easeOutElastic(1, .8)'
+              delay: 300,
+              easing: 'easeOutExpo'
             });
           }
 
+          // Animate project cards
+          const cards = sectionRef.current?.querySelectorAll('.project-card');
+          if (cards) {
+            anime({
+              targets: cards,
+              opacity: [0, 1],
+              translateY: [50, 0],
+              scale: [0.94, 1],
+              duration: 700,
+              delay: anime.stagger(80),
+              easing: 'easeOutExpo'
+            });
+          }
+    
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.2 });
+    }, { threshold: 0.1 });
 
     if (sectionRef.current) {
       observer.observe(sectionRef.current);
     }
 
     return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       observer.disconnect();
     };
   }, []);
 
   /* Animate cards whenever filter changes with anime.js stagger */
   useEffect(() => {
-    const cards = gridRef.current?.querySelectorAll(".project-card");
+    const cards = sectionRef.current?.querySelectorAll(".project-card");
     if (!cards?.length) return;
     
     anime({
@@ -154,6 +224,12 @@ export default function Projects() {
       style={{ background: "var(--bg-secondary)" }}
     >
       <style>{`
+        /* Ensure immediate visibility on first load */
+        .reveal, .filter-btn, .project-card, .github-cta {
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+        }
+        
         /* dot pattern */
         .proj-dot-bg {
           position: absolute;
@@ -436,7 +512,7 @@ export default function Projects() {
         </div>
 
         {/* ── Project grid ── */}
-        <div ref={gridRef} className="projects-grid">
+        <div className="projects-grid">
           {filtered.map((project) => (
             <article 
               key={project.id} 

@@ -356,6 +356,21 @@ export default function Hero() {
           box-shadow: 0 0 50px rgba(0,240,255,0.5), 0 0 100px rgba(168,85,247,0.2);
         }
         .hero-cta-primary span { position: relative; z-index: 1; }
+        
+        /* Mobile adjustments for CTA buttons */
+        @media (max-width: 767px) {
+          .hero-cta-primary {
+            padding: 12px 20px !important;
+            font-size: 14px !important;
+            min-height: 44px !important;
+          }
+          .hero-cta-secondary {
+            padding: 12px 20px !important;
+            font-size: 14px !important;
+            min-height: 44px !important;
+            gap: 8px !important;
+          }
+        }
 
         .hero-cta-secondary {
           display: inline-flex;
@@ -508,7 +523,7 @@ export default function Hero() {
               ref={nameRef}
               style={{
                 opacity: 0,
-                fontSize: 'clamp(56px, 8vw, 96px)',
+                fontSize: 'clamp(36px, 12vw, 72px)',
                 fontWeight: 900,
                 lineHeight: 1,
                 letterSpacing: '-3px',
@@ -532,7 +547,7 @@ export default function Hero() {
                 flexWrap: 'wrap',
                 alignItems: 'baseline',
                 marginBottom: '28px',
-                fontSize: 'clamp(24px, 4vw, 40px)',
+                fontSize: 'clamp(18px, 5vw, 32px)',
                 fontWeight: 800,
               }}
             >
@@ -572,7 +587,7 @@ export default function Hero() {
                 opacity: 0,
                 textAlign: 'left',
                 margin: '0 0 48px 0',
-                fontSize: '17px',
+                fontSize: 'clamp(14px, 4vw, 17px)',
                 color: 'var(--text-secondary)',
                 lineHeight: 1.8,
                 maxWidth: '540px',

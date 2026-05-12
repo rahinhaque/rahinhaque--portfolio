@@ -682,17 +682,73 @@ h1, h2, h3, h4, h5, h6 {
 /* ═══════════════════════════════════════════════════════════ */
 /* RESPONSIVE                                                  */
 /* ═══════════════════════════════════════════════════════════ */
-@media (max-width: 640px) {
+
+/* Tablet adjustments */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 24px;
+  }
+  
+  .section-padding {
+    padding: 100px 0;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
   html {
     font-size: 14px;
   }
   
+  .container {
+    padding: 0 20px;
+  }
+  
+  .section-padding {
+    padding: 80px 0;
+  }
+  
   .section-title {
-    font-size: clamp(28px, 8vw, 40px);
+    font-size: clamp(26px, 7vw, 36px);
   }
   
   .section-subtitle {
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  
+  .section-tag {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
+  
+  .section-padding {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    font-size: clamp(24px, 8vw, 32px);
+  }
+  
+  .section-subtitle {
+    font-size: 14px;
+  }
+  
+  /* Improve touch targets on mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
