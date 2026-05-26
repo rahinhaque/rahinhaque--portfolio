@@ -7,18 +7,20 @@ export default function CustomCursor() {
   const cursorRef = useRef(null);
   const dotRef = useRef(null);
   const animationRef = useRef(null);
+  
   const stateRef = useRef({
     isHovering: false,
-    isVisible: true,
+    isVisible: false,
     mousePos: { x: 0, y: 0 },
-    dotPos: { x: 0, y: 0 },
+    ringPos: { x: 0, y: 0 },
+    previousMousePos: { x: 0, y: 0 }
   });
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Check if device supports hover (not touch device)
+    // Disable custom cursor on touch devices
     if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
       container.style.display = 'none';
       return;
@@ -26,16 +28,22 @@ export default function CustomCursor() {
 
     const handleMouseMove = (e) => {
       stateRef.current.mousePos = { x: e.clientX, y: e.clientY };
+      if (!stateRef.current.isVisible) stateRef.current.isVisible = true;
     };
 
-    const handleMouseDown = () => { stateRef.current.isHovering = true; };
-    const handleMouseUp = () => { stateRef.current.isHovering = false; };
+    const handleMouseDown = () => {
+      if (cursorRef.current) cursorRef.current.classList.add('active');
+    };
+    
+    const handleMouseUp = () => {
+      if (cursorRef.current) cursorRef.current.classList.remove('active');
+    };
 
     const handleMouseEnter = () => { stateRef.current.isVisible = true; };
     const handleMouseLeave = () => { stateRef.current.isVisible = false; };
 
-    // Track hoverable elements
-    const hoverableSelectors = 'a, button, input, textarea, [data-hoverable], .glass-card, .tech-badge, .project-card';
+    // Track interactive elements to trigger hover state
+    const hoverableSelectors = 'a, button, input, textarea, [data-hoverable], .glass-card, .glass-card-premium, .tech-badge, .project-card';
     
     const handleMouseOver = (e) => {
       if (e.target.closest(hoverableSelectors)) {
@@ -52,39 +60,67 @@ export default function CustomCursor() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('mouseenter', handleMouseEnter);
-    window.addEventListener('mouseleave', handleMouseLeave);
+    document.body.addEventListener('mouseenter', handleMouseEnter);
+    document.body.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
 
-    // Animation loop
-    const dotLerpFactor = 0.4;
+    let initialized = false;
+    const ringLerpFactor = 0.15; // Smooth spring physics for the outer ring
 
     const animate = () => {
       const state = stateRef.current;
       if (cursorRef.current && dotRef.current) {
-        // Lerp dot position
-        state.dotPos = {
-          x: state.dotPos.x + (state.mousePos.x - state.dotPos.x) * dotLerpFactor,
-          y: state.dotPos.y + (state.mousePos.y - state.dotPos.y) * dotLerpFactor,
+        
+        // Snap to mouse on first movement
+        if (!initialized && state.isVisible) {
+          state.ringPos = { ...state.mousePos };
+          initialized = true;
+        }
+
+        // Calculate frame velocity
+        const dx = state.mousePos.x - state.previousMousePos.x;
+        const dy = state.mousePos.y - state.previousMousePos.y;
+        state.previousMousePos = { ...state.mousePos };
+
+        // Lerp the outer ring towards the mouse
+        state.ringPos = {
+          x: state.ringPos.x + (state.mousePos.x - state.ringPos.x) * ringLerpFactor,
+          y: state.ringPos.y + (state.mousePos.y - state.ringPos.y) * ringLerpFactor,
         };
 
         const cursor = cursorRef.current;
         const dot = dotRef.current;
 
-        // Update cursor ring
-        cursor.style.transform = `translate(${state.mousePos.x - 10}px, ${state.mousePos.y - 10}px)`;
-        cursor.style.opacity = state.isVisible ? '1' : '0';
+        // Calculate distance (speed proxy) and angle for the stretching effect
+        const distance = Math.sqrt(
+          Math.pow(state.mousePos.x - state.ringPos.x, 2) + 
+          Math.pow(state.mousePos.y - state.ringPos.y, 2)
+        );
+        const angle = Math.atan2(
+          state.mousePos.y - state.ringPos.y, 
+          state.mousePos.x - state.ringPos.x
+        ) * 180 / Math.PI;
+
+        // Dynamically stretch ring based on velocity, or expand uniformly if hovering
+        const scaleX = state.isHovering ? 2.5 : 1 + Math.min(distance * 0.02, 1);
+        const scaleY = state.isHovering ? 2.5 : 1 - Math.min(distance * 0.005, 0.3);
+
+        // Immediate dot position
+        dot.style.transform = `translate3d(calc(${state.mousePos.x}px - 50%), calc(${state.mousePos.y}px - 50%), 0)`;
+        
+        // Physics ring position, rotation, and scale
+        cursor.style.transform = `translate3d(calc(${state.ringPos.x}px - 50%), calc(${state.ringPos.y}px - 50%), 0) rotate(${angle}deg) scale(${scaleX}, ${scaleY})`;
+        
+        // Visibility transitions
+        cursor.style.opacity = state.isVisible ? (state.isHovering ? '0.8' : '1') : '0';
+        dot.style.opacity = state.isVisible && !state.isHovering ? '1' : '0';
         
         if (state.isHovering) {
           cursor.classList.add('hover');
         } else {
           cursor.classList.remove('hover');
         }
-
-        // Update center dot
-        dot.style.transform = `translate(${state.dotPos.x - 2}px, ${state.dotPos.y - 2}px)`;
-        dot.style.opacity = state.isVisible ? '1' : '0';
       }
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -95,13 +131,11 @@ export default function CustomCursor() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('mouseenter', handleMouseEnter);
-      window.removeEventListener('mouseleave', handleMouseLeave);
+      document.body.removeEventListener('mouseenter', handleMouseEnter);
+      document.body.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseout', handleMouseOut);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, []);
 

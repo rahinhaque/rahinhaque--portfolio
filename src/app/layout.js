@@ -2,6 +2,8 @@ import { Outfit, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 
+import SmoothScroll from "@/components/SmoothScroll";
+
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -42,21 +44,23 @@ export default function RootLayout({ children }) {
       className={`${outfit.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full flex flex-col antialiased relative">
-        {/* Custom Cursor */}
-        <CustomCursor />
+        <SmoothScroll>
+          {/* Custom Cursor */}
+          <CustomCursor />
 
-        {/* Ambient Background Glows */}
-        <div className="ambient-glow ambient-glow-1" aria-hidden="true" />
-        <div className="ambient-glow ambient-glow-2" aria-hidden="true" />
-        <div className="ambient-glow ambient-glow-3" aria-hidden="true" />
+          {/* Ambient Background Glows */}
+          <div className="ambient-glow ambient-glow-1" aria-hidden="true" />
+          <div className="ambient-glow ambient-glow-2" aria-hidden="true" />
+          <div className="ambient-glow ambient-glow-3" aria-hidden="true" />
 
-        {/* Noise Texture Overlay */}
-        <div className="noise-overlay" aria-hidden="true" />
+          {/* Noise Texture Overlay */}
+          <div className="noise-overlay" aria-hidden="true" />
 
-        {/* Main Content */}
-        <div className="relative z-10">
-          {children}
-        </div>
+          {/* Main Content */}
+          <div className="relative z-10 page-content-fade">
+            {children}
+          </div>
+        </SmoothScroll>
       </body>
     </html>
   );

@@ -106,7 +106,7 @@ export default function Navbar() {
         ref={navRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled 
-            ? 'navbar-glass shadow-2xl shadow-black/50 border-b border-[var(--border-accent)]' 
+            ? 'bg-transparent backdrop-blur-md shadow-2xl shadow-black/50 border-b border-[var(--border-accent)]' 
             : 'bg-transparent'
         }`}
       >
@@ -188,6 +188,16 @@ export default function Navbar() {
               >
                 <LinkedInIcon />
               </a>
+              <a
+                href="/Rahin_Haque_MERN_Resume_Final.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="magnetic-btn flex items-center gap-2 px-5 py-2.5 text-sm rounded-lg font-bold border border-[var(--border-accent)] text-[var(--accent-cyan)] hover:bg-cyan-500/10 transition-all duration-300"
+                aria-label="View Resume"
+              >
+                <ResumeIcon />
+                <span>Resume</span>
+              </a>
               <button
                 onClick={() => scrollTo('contact')}
                 className="magnetic-btn btn-primary px-6 py-2.5 text-sm rounded-lg font-bold"
@@ -254,10 +264,30 @@ export default function Navbar() {
                 LinkedIn
               </a>
             </div>
+            <div className="px-2 mt-3">
+              <a
+                href="/Rahin_Haque_MERN_Resume_Final.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3.5 text-sm font-bold rounded-xl text-black transition-all duration-300"
+                style={{ background: 'linear-gradient(135deg, #00d4ff, #8b5cf6)' }}
+              >
+                <ResumeIcon />
+                View Resume
+              </a>
+            </div>
           </div>
         </div>
       </header>
     </>
+  );
+}
+
+function ResumeIcon() {
+  return (
+    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
   );
 }
 

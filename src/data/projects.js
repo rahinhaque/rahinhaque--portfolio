@@ -5,6 +5,7 @@ import {
   FaBook,
   FaStore,
   FaCode,
+  FaPaw,
 } from "react-icons/fa";
 
 export const projects = [
@@ -168,6 +169,34 @@ export const projects = [
       "Add TypeScript support across all experiments",
       "Build reusable component library from experiments",
       "Add testing with Jest and React Testing Library",
+    ],
+  },
+  {
+    id: 7,
+    title: "Paw Heaven",
+    tagline: "Full-Stack Pet Adoption Platform",
+    description:
+      "A complete full-stack pet adoption and care platform with a React frontend, Node.js/Express REST API backend, JWT-based authentication, and MongoDB database — allowing users to browse pets, submit adoption requests, and manage their profiles.",
+    image: "/work-3.png",
+    tech: ["React", "Node.js", "Express.js", "MongoDB", "JWT Auth", "REST API"],
+    highlights: ["JWT Authentication", "Full REST API", "Full-Stack MERN"],
+    github: "https://github.com/rahinhaque/Petheaven-frontend",
+    githubServer: "https://github.com/rahinhaque/paw-heaven-server",
+    live: null,
+    icon: "FaPaw",
+    accent: "#f97316",
+    accentRgb: "249,115,22",
+    featured: true,
+    challenges: [
+      "Designing and implementing a secure JWT authentication system across both frontend and backend with protected route handling",
+      "Building a RESTful Express API with proper middleware, error handling, and MongoDB integration using Mongoose",
+      "Managing async state across the React frontend for pet listings, user sessions, and adoption request workflows",
+    ],
+    improvements: [
+      "Add real-time notifications for adoption request status updates using Socket.io",
+      "Implement an admin dashboard with analytics for managing pets, users, and adoption requests",
+      "Integrate payment processing for adoption fees and donation features",
+      "Add image upload support with cloud storage (Cloudinary) for pet profile photos",
     ],
   },
 ];

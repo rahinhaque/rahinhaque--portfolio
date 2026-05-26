@@ -488,6 +488,7 @@ export default function Hero() {
                 marginBottom: '32px',
                 fontFamily: "'JetBrains Mono', monospace",
               }}
+              className="tag-pop-in shimmer-text glow-border"
             >
               <span
                 style={{
@@ -521,6 +522,7 @@ export default function Hero() {
             {/* Name */}
             <h1
               ref={nameRef}
+              className="neon-text"
               style={{
                 opacity: 0,
                 fontSize: 'clamp(36px, 12vw, 72px)',
@@ -611,7 +613,7 @@ export default function Hero() {
               }}
             >
               <button
-                className="hero-cta-primary"
+                className="hero-cta-primary btn-ripple"
                 onClick={() => scrollTo('projects')}
                 style={{ opacity: 0 }}
               >
@@ -624,7 +626,7 @@ export default function Hero() {
                 href="https://github.com/rahinhaque"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hero-cta-secondary"
+                className="hero-cta-secondary btn-ripple hover-underline"
                 style={{ opacity: 0 }}
               >
                 GitHub Profile
@@ -715,6 +717,7 @@ export default function Hero() {
 
             {/* Photo */}
             <div
+              className="breathe-glow"
               style={{
                 position: 'relative',
                 zIndex: 2,

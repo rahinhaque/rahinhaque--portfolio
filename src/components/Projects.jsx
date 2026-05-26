@@ -11,6 +11,7 @@ import {
   FaBook,
   FaStore,
   FaCode,
+  FaPaw,
   FaArrowRight,
 } from "react-icons/fa";
 import { projects } from "@/data/projects";
@@ -22,6 +23,7 @@ const iconMap = {
   FaBook: <FaBook size={22} />,
   FaStore: <FaStore size={22} />,
   FaCode: <FaCode size={22} />,
+  FaPaw: <FaPaw size={22} />,
 };
 
 export default function Projects() {
@@ -661,23 +663,35 @@ export default function Projects() {
                 </div>
 
                 {/* Action buttons */}
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                   <a
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="card-link-ghost"
+                    className="card-link-ghost hover-underline"
                   >
                     <GitHubIcon size={14} />
-                    Code
+                    {project.githubServer ? "Client Code" : "Code"}
                   </a>
+
+                  {project.githubServer && (
+                    <a
+                      href={project.githubServer}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="card-link-ghost hover-underline"
+                    >
+                      <GitHubIcon size={14} />
+                      Server Code
+                    </a>
+                  )}
 
                   {project.live ? (
                     <a
                       href={project.live}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="card-link-live"
+                      className="card-link-live btn-ripple"
                       style={{
                         background: `linear-gradient(135deg, rgba(${project.accentRgb},0.85), ${project.accent})`,
                       }}

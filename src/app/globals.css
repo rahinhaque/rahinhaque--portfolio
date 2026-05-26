@@ -3,7 +3,7 @@
 @import "animate.css/animate.min.css";
 
 html {
-  scroll-behavior: smooth;
+  /* Lenis handles smooth scrolling natively now */
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -66,7 +66,6 @@ html {
 }
 
 html {
-  scroll-behavior: smooth;
   font-size: 16px;
   cursor: none; /* Custom cursor */
 }
@@ -87,25 +86,26 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 999999;
 }
 
 .custom-cursor {
   position: fixed;
   top: 0;
   left: 0;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border: 2px solid var(--accent-cyan);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
-  mix-blend-mode: difference;
+  z-index: 999999;
+  /* Removed mix-blend-mode as it causes massive GPU lag during scrolling/animations */
+  /* Removed CSS transitions to let JS handle fluid physics */
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  will-change: transform, opacity;
 }
 
 .custom-cursor-dot {
@@ -117,15 +117,16 @@ body {
   background: var(--accent-cyan);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
+  z-index: 999999;
+  box-shadow: 0 0 8px var(--accent-cyan);
+  will-change: transform, opacity;
 }
 
 .custom-cursor.hover {
-  width: 40px;
-  height: 40px;
-  background: rgba(0, 240, 255, 0.1);
-  border-color: var(--accent-purple);
+  background: rgba(0, 240, 255, 0.08);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+  backdrop-filter: blur(2px);
 }
 
 /* Selection */
@@ -757,4 +758,344 @@ h1, h2, h3, h4, h5, h6 {
 /* ═══════════════════════════════════════════════════════════ */
 .animate__animated {
   animation-fill-mode: both;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* PREMIUM ANIMATION SYSTEM — v3.0                             */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. Page entrance fade-in ─────────────────────────────── */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-content-fade {
+  animation: pageFadeIn 0.6s var(--ease-out-expo) both;
+}
+
+/* ── 2. Shimmer text — apply via .shimmer-text ────────────── */
+@keyframes shimmerMove {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--accent-cyan) 0%,
+    var(--accent-purple) 30%,
+    #fff 50%,
+    var(--accent-purple) 70%,
+    var(--accent-cyan) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerMove 4s linear infinite;
+}
+
+/* ── 3. Glowing border pulse — apply via .glow-border ─────── */
+@keyframes glowBorderPulse {
+  0%,100% {
+    box-shadow:
+      0 0 0 0 rgba(0,240,255,0),
+      inset 0 0 0 0 rgba(0,240,255,0);
+    border-color: rgba(0,240,255,0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 24px 2px rgba(0,240,255,0.18),
+      0 0 48px 4px rgba(168,85,247,0.1),
+      inset 0 0 16px 0 rgba(0,240,255,0.04);
+    border-color: rgba(0,240,255,0.45);
+  }
+}
+.glow-border {
+  border: 1px solid rgba(0,240,255,0.15);
+  animation: glowBorderPulse 3.5s ease-in-out infinite;
+}
+
+/* ── 4. Card shine sweep — apply via .card-shine ──────────── */
+@keyframes shineSweep {
+  0%   { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX( 220%) skewX(-20deg); }
+}
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+.card-shine::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.04),
+    transparent
+  );
+  transform: translateX(-120%) skewX(-20deg);
+  animation: shineSweep 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── 5. Floating orbit dot ────────────────────────────────── */
+@keyframes orbitDot {
+  0%   { transform: rotate(0deg)   translateX(60px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+}
+.orbit-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+  animation: orbitDot 8s linear infinite;
+}
+
+/* ── 6. Counter pop — used by number stats ────────────────── */
+@keyframes counterPop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.counter-pop {
+  animation: counterPop 0.7s var(--ease-bounce) both;
+}
+
+/* ── 7. Neon text glow — apply via .neon-text ─────────────── */
+@keyframes neonPulse {
+  0%,100% {
+    text-shadow:
+      0 0 6px  rgba(0,240,255,0.5),
+      0 0 12px rgba(0,240,255,0.3),
+      0 0 24px rgba(0,240,255,0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(0,240,255,0.9),
+      0 0 20px rgba(0,240,255,0.6),
+      0 0 40px rgba(168,85,247,0.4);
+  }
+}
+.neon-text {
+  color: var(--accent-cyan);
+  animation: neonPulse 3s ease-in-out infinite;
+}
+
+/* ── 8. Section beam — decorative animated horizontal line ── */
+@keyframes beamSlide {
+  0%   { transform: scaleX(0); transform-origin: left; opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: scaleX(1); transform-origin: left; opacity: 1; }
+}
+.section-beam {
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink), transparent);
+  animation: beamSlide 1.2s var(--ease-out-expo) both;
+  border-radius: 2px;
+}
+
+/* ── 9. Stagger fade-up group — parent triggers children ──── */
+@keyframes fadeUpStagger {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stagger-group > * {
+  animation: fadeUpStagger 0.7s var(--ease-out-expo) both;
+}
+.stagger-group > *:nth-child(1) { animation-delay: 0.0s; }
+.stagger-group > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger-group > *:nth-child(3) { animation-delay: 0.16s; }
+.stagger-group > *:nth-child(4) { animation-delay: 0.24s; }
+.stagger-group > *:nth-child(5) { animation-delay: 0.32s; }
+.stagger-group > *:nth-child(6) { animation-delay: 0.40s; }
+.stagger-group > *:nth-child(7) { animation-delay: 0.48s; }
+.stagger-group > *:nth-child(8) { animation-delay: 0.56s; }
+
+/* ── 10. Button ripple on hover ───────────────────────────── */
+@keyframes rippleExpand {
+  0%   { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(3); opacity: 0; }
+}
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(0,240,255,0.3) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: none;
+}
+.btn-ripple:active::before {
+  animation: rippleExpand 0.5s var(--ease-out-expo) forwards;
+}
+
+/* ── 11. Floating particles background dots ───────────────── */
+@keyframes particleFloat1 {
+  0%,100% { transform: translate(0, 0)   scale(1);   opacity: 0.6; }
+  33%      { transform: translate(20px,-30px) scale(1.1); opacity: 1;   }
+  66%      { transform: translate(-15px,15px) scale(0.9); opacity: 0.4; }
+}
+@keyframes particleFloat2 {
+  0%,100% { transform: translate(0,0)    scale(1);   opacity: 0.4; }
+  40%      { transform: translate(-25px,20px) scale(1.2); opacity: 0.8; }
+  80%      { transform: translate(18px,-12px) scale(0.8); opacity: 0.3; }
+}
+@keyframes particleFloat3 {
+  0%,100% { transform: translate(0,0)   scale(1);   opacity: 0.5; }
+  50%      { transform: translate(30px,25px) scale(1.1); opacity: 0.9; }
+}
+.particle-dot {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.particle-dot-1 {
+  width: 4px; height: 4px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  animation: particleFloat1 12s ease-in-out infinite;
+}
+.particle-dot-2 {
+  width: 6px; height: 6px;
+  background: var(--accent-purple);
+  box-shadow: 0 0 12px var(--accent-purple);
+  animation: particleFloat2 18s ease-in-out infinite;
+}
+.particle-dot-3 {
+  width: 3px; height: 3px;
+  background: var(--accent-pink);
+  box-shadow: 0 0 8px var(--accent-pink);
+  animation: particleFloat3 15s ease-in-out infinite;
+}
+
+/* ── 12. Gradient border animated card ───────────────────── */
+@keyframes rotateBorder {
+  from { --border-angle: 0turn; }
+  to   { --border-angle: 1turn; }
+}
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0turn;
+}
+.gradient-border-card {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.gradient-border-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--border-angle),
+    var(--accent-cyan),
+    var(--accent-purple),
+    var(--accent-pink),
+    var(--accent-cyan)
+  );
+  animation: rotateBorder 4s linear infinite;
+  z-index: -1;
+}
+
+/* ── 13. Highlight underline grow on hover ────────────────── */
+.hover-underline {
+  position: relative;
+}
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -3px;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+  border-radius: 2px;
+  transition: width 0.35s var(--ease-out-expo);
+}
+.hover-underline:hover::after { width: 100%; }
+
+/* ── 14. Breathing glow — for photo/avatar rings ─────────── */
+@keyframes breatheGlow {
+  0%,100% { box-shadow: 0 0 20px rgba(0,240,255,0.2), 0 0 40px rgba(168,85,247,0.1); }
+  50%      { box-shadow: 0 0 40px rgba(0,240,255,0.4), 0 0 80px rgba(168,85,247,0.25), 0 0 120px rgba(236,72,153,0.1); }
+}
+.breathe-glow { animation: breatheGlow 4s ease-in-out infinite; }
+
+/* ── 15. Typewriter cursor blink ─────────────────────────── */
+@keyframes cursorBlink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+.cursor-blink { animation: cursorBlink 1s step-end infinite; }
+
+/* ── 16. Scale-in reveal ─────────────────────────────────── */
+@keyframes scaleInReveal {
+  from { transform: scale(0.85); opacity: 0; filter: blur(4px); }
+  to   { transform: scale(1);    opacity: 1; filter: blur(0); }
+}
+.scale-in-reveal {
+  animation: scaleInReveal 0.6s var(--ease-bounce) both;
+}
+
+/* ── 17. Slide-in from left / right ─────────────────────── */
+@keyframes slideInLeft {
+  from { transform: translateX(-60px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slideInRight {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.slide-in-left  { animation: slideInLeft  0.8s var(--ease-out-expo) both; }
+.slide-in-right { animation: slideInRight 0.8s var(--ease-out-expo) both; }
+
+/* ── 18. Glass card hover lift with glow ─────────────────── */
+.glass-card-premium {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px);
+  border-radius: var(--radius-lg);
+  transition:
+    transform      0.4s var(--ease-out-expo),
+    box-shadow     0.4s var(--ease-out-expo),
+    border-color   0.4s ease,
+    background     0.4s ease;
+}
+.glass-card-premium:hover {
+  transform: translateY(-8px) scale(1.015);
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(0,240,255,0.22);
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.45),
+    0 0 40px rgba(0,240,255,0.08),
+    0 0 80px rgba(168,85,247,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ── 19. Tag / badge pop-in ─────────────────────────────── */
+@keyframes tagPopIn {
+  0%   { transform: scale(0.5) rotate(-6deg); opacity: 0; }
+  70%  { transform: scale(1.1) rotate(2deg); }
+  100% { transform: scale(1)   rotate(0deg); opacity: 1; }
+}
+.tag-pop-in { animation: tagPopIn 0.5s var(--ease-bounce) both; }
+
+/* ── 20. Reduce motion override ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

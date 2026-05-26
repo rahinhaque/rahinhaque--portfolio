@@ -8,62 +8,35 @@ export default function Loader({ onComplete }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Animate welcome text
-    gsap.to(".loader-welcome", {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      delay: 0.3,
-      from: { opacity: 0, y: 20 }
-    });
+    // Disable scrolling while loading
+    document.body.style.overflow = "hidden";
 
-    // Animate progress counter from 0 to 100
     const counter = { value: 0 };
 
+    // Ultra-fast, sleek pro loading animation
     gsap.to(counter, {
       value: 100,
-      duration: 2.5,
-      ease: 'power2.inOut',
-      delay: 0.6,
+      duration: 1.5,
+      ease: 'power3.inOut',
+      delay: 0.2,
       snap: { value: 1 },
       onUpdate: function () {
         setProgress(Math.round(counter.value));
       },
       onComplete: function () {
-        // Fade out loader
+        // Smooth slide up & fade out
         gsap.to(".loader-container", {
+          yPercent: -100,
           opacity: 0,
-          duration: 0.6,
-          ease: 'power3.out',
-          delay: 0.2,
+          duration: 0.8,
+          ease: 'power4.inOut',
           onComplete: function () {
+            document.body.style.overflow = "auto";
             setLoading(false);
             if (onComplete) onComplete();
           },
         });
       },
-    });
-
-    // Animate progress bar
-    gsap.to(".progress-bar-fill", {
-      width: "100%",
-      duration: 2.5,
-      ease: 'power2.inOut',
-      delay: 0.6,
-      from: { width: "0%" }
-    });
-
-    // Animate loader dots
-    gsap.to(".loader-dot", {
-      scale: 1,
-      opacity: 1,
-      duration: 0.6,
-      stagger: 0.1,
-      yoyo: true,
-      repeat: -1,
-      ease: 'power1.inOut',
-      from: { scale: 0.5, opacity: 0.3 }
     });
   }, [onComplete]);
 
@@ -77,80 +50,25 @@ export default function Loader({ onComplete }) {
         top: 0,
         left: 0,
         width: "100%",
-        height: "100%",
-        background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)",
+        height: "100vh",
+        background: "var(--bg-deep)",
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 9999,
+        zIndex: 9999999,
       }}
     >
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        
-        .loader-welcome {
-          font-family: 'Inter', sans-serif;
-          font-size: 24px;
-          font-weight: 700;
-          background: linear-gradient(135deg, #00d4ff, #8b5cf6);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 40px;
-          animation: float 3s ease-in-out infinite;
-        }
-        
-        .progress-container {
-          width: 300px;
-          height: 4px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 2px;
-          overflow: hidden;
-          margin-bottom: 20px;
-        }
-        
-        .progress-bar-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #00d4ff, #8b5cf6);
-          border-radius: 2px;
-        }
-        
-        .progress-text {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 14px;
-          color: #a0a0b5;
-          margin-bottom: 30px;
-        }
-        
-        .loader-dots {
-          display: flex;
-          gap: 8px;
-        }
-        
-        .loader-dot {
-          width: 8px;
-          height: 8px;
-          background: linear-gradient(135deg, #00d4ff, #8b5cf6);
-          border-radius: 50%;
-        }
-      `}</style>
-
-      <div className="loader-welcome">Welcome</div>
-
-      <div className="progress-container">
-        <div className="progress-bar-fill" style={{ width: "0%" }}></div>
-      </div>
-
-      <div className="progress-text">{progress}%</div>
-
-      <div className="loader-dots">
-        <div className="loader-dot"></div>
-        <div className="loader-dot"></div>
-        <div className="loader-dot"></div>
+      <div 
+        className="neon-text"
+        style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "clamp(3rem, 8vw, 6rem)",
+          fontWeight: 900,
+          color: "var(--accent-cyan)",
+          letterSpacing: "-2px",
+        }}
+      >
+        {progress}%
       </div>
     </div>
   );
